@@ -70,14 +70,19 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
     }
 
     /**
+     * Faz Filament usar a Collection como "query"
+     */
+    protected function getTableQuery(): Collection
+    {
+        return self::getLogs();
+    }
+
+    /**
      * Define a tabela
      */
     public function table(Table $table): Table
     {
-        $logs = self::getLogs();
-
         return $table
-            ->query(fn() => collect($logs)) // precisa de query mesmo sendo Collection
             ->columns([
                 TextColumn::make('datetime')
                     ->label('Data')
@@ -101,9 +106,9 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
                 Filter::make('search')
                     ->form([
                         \Filament\Forms\Components\TextInput::make('search')
-                            ->label('Palavra-chave')
+                            ->label('Palavra-chave'),
                     ])
-                    ->query(function ($query, array $data) {
+                    ->query(function (Collection $query, array $data) {
                         if (!empty($data['search'])) {
                             return $query->filter(fn($log) => str_contains(strtolower($log['message']), strtolower($data['search'])));
                         }
@@ -117,7 +122,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
                         'INFO' => 'INFO',
                         'DEBUG' => 'DEBUG',
                     ])
-                    ->query(fn($query, $value) => $query->filter(fn($log) => $log['level'] === $value)),
+                    ->query(fn(Collection $query, $value) => $query->filter(fn($log) => $log['level'] === $value)),
             ])
             ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(3)
