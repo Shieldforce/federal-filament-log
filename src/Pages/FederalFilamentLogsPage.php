@@ -28,40 +28,6 @@ class FederalFilamentLogsPage extends Page
         $this->filtrar();
     }
 
-    protected function getForms(): array
-    {
-        return [
-            'filtroForm' => $this->makeForm()->schema($this->getFiltroSchema())->columns(8),
-        ];
-    }
-
-    protected function getFiltroSchema(): array
-    {
-        return [
-            TextInput::make('search')
-                ->label('Palavra-chave')
-                ->placeholder('Buscar mensagem...'),
-
-            Select::make('tipo')
-                ->label('Tipo/Nível')
-                ->options([
-                    'emergency' => 'EMERGENCY',
-                    'alert'     => 'ALERT',
-                    'critical'  => 'CRITICAL',
-                    'error'     => 'ERROR',
-                    'warning'   => 'WARNING',
-                    'notice'    => 'NOTICE',
-                    'info'      => 'INFO',
-                    'debug'     => 'DEBUG',
-                ])
-                ->placeholder('Todos'),
-
-            TextInput::make('data')
-                ->label('Data')
-                ->placeholder('YYYY-MM-DD'),
-        ];
-    }
-
     public function updated($propertyName)
     {
         $this->filtrar();
