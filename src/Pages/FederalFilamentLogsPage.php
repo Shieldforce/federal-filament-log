@@ -5,11 +5,15 @@ namespace Shieldforce\FederalFilamentLog\Pages;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
-class FederalFilamentLogsPage extends Page
+class FederalFilamentLogsPage extends Page implements HasForms
 {
+    use InteractsWithForms;
+
     protected static string  $view            = 'federal-filament-log::pages.logs';
     protected static ?string $navigationIcon  = 'heroicon-o-list-bullet';
     protected static ?string $navigationGroup = 'Logs';
@@ -23,11 +27,47 @@ class FederalFilamentLogsPage extends Page
     public ?string $data   = null;
     public ?array  $result = [];
 
+    // Monta o formulário Filament
+    protected function getFormSchema(): array
+    {
+        return [
+            TextInput::make('search')
+                ->label('Palavra-chave')
+                ->placeholder('Buscar mensagem...'),
+
+            Select::make('tipo')
+                ->label('Tipo/Nível')
+                ->options([
+                    ''          => 'Todos',
+                    'emergency' => 'EMERGENCY',
+                    'alert'     => 'ALERT',
+                    'critical'  => 'CRITICAL',
+                    'error'     => 'ERROR',
+                    'warning'   => 'WARNING',
+                    'notice'    => 'NOTICE',
+                    'info'      => 'INFO',
+                    'debug'     => 'DEBUG',
+                ])
+                ->placeholder('Todos'),
+
+            TextInput::make('data')
+                ->label('Data')
+                ->placeholder('YYYY-MM-DD'),
+        ];
+    }
+
     public function mount(): void
     {
+        $this->form->fill([
+            'search' => $this->search,
+            'tipo'   => $this->tipo,
+            'data'   => $this->data,
+        ]);
+
         $this->filtrar();
     }
 
+    // Atualiza os filtros automaticamente
     public function updated($propertyName)
     {
         $this->filtrar();
@@ -52,6 +92,7 @@ class FederalFilamentLogsPage extends Page
         $this->result = array_values($logs);
     }
 
+    // Lê o arquivo de log
     public function getData(): array
     {
         $logFile = storage_path('logs/laravel.log');
@@ -60,6 +101,7 @@ class FederalFilamentLogsPage extends Page
             return [
                 [
                     'datetime' => now()->toDateTimeString(),
+                    'env'      => app()->environment(),
                     'level'    => 'INFO',
                     'message'  => 'Arquivo de log vazio ou inexistente.',
                 ]
