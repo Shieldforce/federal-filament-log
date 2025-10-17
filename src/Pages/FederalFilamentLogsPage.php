@@ -16,17 +16,22 @@ use Shieldforce\CheckoutPayment\Services\Permissions\CanPageTrait;
 class FederalFilamentLogsPage extends Page implements HasForms, HasTable
 {
     use CanPageTrait;
-
     use InteractsWithForms;
     use InteractsWithTable;
 
-    protected static string  $view            = 'federal-filament-log::pages.index';
-    protected static ?string $navigationIcon  = 'heroicon-o-document-text';
+    protected static string $view = 'federal-filament-log::pages.index';
+
+    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
     protected static ?string $navigationGroup = 'Logs';
-    protected static ?string $label           = 'Log';
+
+    protected static ?string $label = 'Log';
+
     protected static ?string $navigationLabel = 'Log';
-    protected static ?string $slug            = 'logs';
-    protected static ?string $title           = 'Lista de Logs';
+
+    protected static ?string $slug = 'logs';
+
+    protected static ?string $title = 'Lista de Logs';
 
     public function mount(?int $checkoutId = null): void {}
 
@@ -39,7 +44,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(3)
             ->filtersTriggerAction(
-                fn(Action $action) => $action
+                fn (Action $action) => $action
                     ->button()
                     ->label('Filtrar...'),
             )
