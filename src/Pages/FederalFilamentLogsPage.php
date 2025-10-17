@@ -28,6 +28,13 @@ class FederalFilamentLogsPage extends Page
         $this->filtrar();
     }
 
+    protected function getForms(): array
+    {
+        return [
+            'filtroForm' => $this->makeForm()->schema($this->getFiltroSchema())->columns(8),
+        ];
+    }
+
     protected function getFiltroSchema(): array
     {
         return [
