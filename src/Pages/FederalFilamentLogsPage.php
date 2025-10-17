@@ -6,16 +6,23 @@ use Filament\Pages\Page;
 
 class FederalFilamentLogsPage extends Page
 {
-    protected static string  $view            = 'federal-filament-log::pages.logs';
-    protected static ?string $navigationIcon  = 'heroicon-o-list-bullet';
+    protected static string $view = 'federal-filament-log::pages.logs';
+
+    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+
     protected static ?string $navigationGroup = 'Logs';
-    protected static ?string $label           = 'Log';
+
+    protected static ?string $label = 'Log';
+
     protected static ?string $navigationLabel = 'Logs do Sistema';
-    protected static ?string $slug            = 'logs';
-    protected static ?string $title           = 'Logs do Sistema';
+
+    protected static ?string $slug = 'logs';
+
+    protected static ?string $title = 'Logs do Sistema';
 
     public ?string $search = null;
-    public ?array  $result;
+
+    public ?array $result;
 
     public function mount(): void
     {
@@ -45,7 +52,7 @@ class FederalFilamentLogsPage extends Page
 
     public function filtrar()
     {
-        $getData  = $this->getData();
+        $getData = $this->getData();
         $newItens = [];
 
         foreach ($getData as $item) {
@@ -59,13 +66,13 @@ class FederalFilamentLogsPage extends Page
     {
         return [
             [
-                "numero" => "Um",
-                "letra"  => "Dois",
+                'numero' => 'Um',
+                'letra' => 'Dois',
             ],
             [
-                "numero" => "Tres",
-                "letra"  => "Quatro",
-            ]
+                'numero' => 'Tres',
+                'letra' => 'Quatro',
+            ],
         ];
     }
 }
