@@ -6,28 +6,30 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class FederalFilamentLogsPage extends Page implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
-    protected static string  $view            = 'federal-filament-log::pages.index';
-    protected static ?string $navigationIcon  = 'heroicon-o-list-bullet';
+    protected static string $view = 'federal-filament-log::pages.index';
+
+    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+
     protected static ?string $navigationGroup = 'Logs';
-    protected static ?string $label           = 'Log';
+
+    protected static ?string $label = 'Log';
+
     protected static ?string $navigationLabel = 'Logs do Sistema';
-    protected static ?string $slug            = 'logs';
-    protected static ?string $title           = 'Logs do Sistema';
+
+    protected static ?string $slug = 'logs';
+
+    protected static ?string $title = 'Logs do Sistema';
 
     public ?string $search = '';
 
@@ -38,12 +40,12 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
     {
         $logFile = storage_path('logs/laravel.log');
 
-        if (!File::exists($logFile)) {
+        if (! File::exists($logFile)) {
             return collect([['level' => 'info', 'message' => 'Arquivo de log vazio ou inexistente.']]);
         }
 
         $lines = collect(explode("\n", File::get($logFile)))
-            ->filter(fn($line) => trim($line) !== '')
+            ->filter(fn ($line) => trim($line) !== '')
             ->map(function ($line) {
                 // Tenta identificar o nível e mensagem
                 if (preg_match('/\[(.*?)\] (local|production)\.(\w+): (.*)/', $line, $matches)) {
@@ -77,10 +79,10 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
             ->columns([
                 // ... suas colunas
             ])
-            ->data(fn() => self::getLogs()) // ✅ usa a collection direto aqui
+            ->data(fn () => self::getLogs()) // ✅ usa a collection direto aqui
             ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(3)
-            ->filtersTriggerAction(fn(Action $action) => $action->button()->label('Filtrar...'))
+            ->filtersTriggerAction(fn (Action $action) => $action->button()->label('Filtrar...'))
             ->actions([])
             ->bulkActions([])
             ->headerActions([
@@ -88,7 +90,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
                     ->label('Recarregar')
                     ->icon('heroicon-o-arrow-path')
                     ->color('gray')
-                    ->action(fn() => $this->dispatch('$refresh')),
+                    ->action(fn () => $this->dispatch('$refresh')),
 
                 Action::make('clear')
                     ->label('Limpar Logs')
@@ -101,5 +103,4 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
                     }),
             ]);
     }
-
 }
