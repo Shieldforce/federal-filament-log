@@ -70,16 +70,35 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
     }
 
     /**
-     * Faz Filament usar a Collection como "query"
+     * Query obrigatória para Filament (não usada, só para satisfazer interface)
      */
-    protected function getTableQuery(): Collection
+    protected function getTableQuery()
     {
-        return self::getLogs();
+        return self::getLogs(); // dummy, não é Eloquent
     }
 
     /**
-     * Define a tabela
+     * Retorna os registros da tabela usando Collection
      */
+    protected function getTableRecordsUsing(): Collection
+    {
+        $logs = self::getLogs();
+
+        // aplica filtros manuais
+        $filters = $this->getCachedTableFilters();
+
+        if (isset($filters['level'])) {
+            $logs = $logs->filter(fn($log) => $log['level'] === $filters['level']);
+        }
+
+        if (isset($filters['search'])) {
+            $search = strtolower($filters['search']);
+            $logs = $logs->filter(fn($log) => str_contains(strtolower($log['message']), $search));
+        }
+
+        return $logs;
+    }
+
     public function table(Table $table): Table
     {
         return $table
@@ -107,13 +126,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
                     ->form([
                         \Filament\Forms\Components\TextInput::make('search')
                             ->label('Palavra-chave'),
-                    ])
-                    ->query(function (Collection $query, array $data) {
-                        if (!empty($data['search'])) {
-                            return $query->filter(fn($log) => str_contains(strtolower($log['message']), strtolower($data['search'])));
-                        }
-                        return $query;
-                    }),
+                    ]),
                 SelectFilter::make('level')
                     ->label('Nível')
                     ->options([
@@ -121,8 +134,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
                         'WARNING' => 'WARNING',
                         'INFO' => 'INFO',
                         'DEBUG' => 'DEBUG',
-                    ])
-                    ->query(fn(Collection $query, $value) => $query->filter(fn($log) => $log['level'] === $value)),
+                    ]),
             ])
             ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(3)
