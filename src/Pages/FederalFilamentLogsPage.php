@@ -2,6 +2,7 @@
 
 namespace Shieldforce\FederalFilamentLog\Pages;
 
+use Carbon\Carbon;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
@@ -28,126 +29,58 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
     protected static ?string $slug            = 'logs';
     protected static ?string $title           = 'Logs do Sistema';
 
-    public ?string $search = '';
+    public ?string $search = null;
+    public ?array  $result;
 
-
-    public static function getLogs(): Collection
+    public function mount(): void
     {
-        $logFile = storage_path('logs/laravel.log');
-
-        if (!File::exists($logFile)) {
-            return collect([[
-                'datetime' => now()->toDateTimeString(),
-                'env' => app()->environment(),
-                'level' => 'INFO',
-                'message' => 'Arquivo de log vazio ou inexistente.'
-            ]]);
-        }
-
-        return collect(explode("\n", File::get($logFile)))
-            ->filter(fn($line) => trim($line) !== '')
-            ->map(function ($line) {
-                if (preg_match('/\[(.*?)\] (local|production)\.(\w+): (.*)/', $line, $m)) {
-                    return [
-                        'datetime' => $m[1] ?? now()->toDateTimeString(),
-                        'env' => $m[2] ?? app()->environment(),
-                        'level' => strtoupper($m[3] ?? 'INFO'),
-                        'message' => $m[4] ?? $line,
-                    ];
-                }
-
-                return [
-                    'datetime' => now()->toDateTimeString(),
-                    'env' => app()->environment(),
-                    'level' => 'INFO',
-                    'message' => $line,
-                ];
-            })
-            ->reverse()
-            ->values();
+        $this->filtrar();
     }
 
-    /*protected function getTableQuery()
+    protected function getFiltroSchema(): array
     {
-        return self::getLogs();
-    }*/
+        return [
 
-    protected function getTableRecordsUsing(): Collection
-    {
-        $logs = self::getLogs();
-
-        // aplica filtros manuais
-        $filters = $this->getCachedTableFilters();
-
-        if (isset($filters['level'])) {
-            $logs = $logs->filter(fn($log) => $log['level'] === $filters['level']);
-        }
-
-        if (isset($filters['search'])) {
-            $search = strtolower($filters['search']);
-            $logs = $logs->filter(fn($log) => str_contains(strtolower($log['message']), $search));
-        }
-
-        return $logs;
+        ];
     }
 
-    public function table(Table $table): Table
+    protected function getForms(): array
     {
-        return $table
-            ->columns([
-                TextColumn::make('datetime')
-                    ->label('Data')
-                    ->sortable(),
-                TextColumn::make('level')
-                    ->label('Nível')
-                    ->badge()
-                    ->color(fn($state) => match ($state) {
-                        'ERROR' => 'danger',
-                        'WARNING' => 'warning',
-                        'INFO' => 'info',
-                        'DEBUG' => 'gray',
-                        default => 'primary',
-                    }),
-                TextColumn::make('message')
-                    ->label('Mensagem')
-                    ->wrap()
-                    ->searchable(),
-            ])
-            ->filters([
-                Filter::make('search')
-                    ->form([
-                        \Filament\Forms\Components\TextInput::make('search')
-                            ->label('Palavra-chave'),
-                    ]),
-                SelectFilter::make('level')
-                    ->label('Nível')
-                    ->options([
-                        'ERROR' => 'ERROR',
-                        'WARNING' => 'WARNING',
-                        'INFO' => 'INFO',
-                        'DEBUG' => 'DEBUG',
-                    ]),
-            ])
-            ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContentCollapsible)
-            ->filtersFormColumns(3)
-            ->filtersTriggerAction(fn($action) => $action->button()->label('Filtrar...'))
-            ->actions([])
-            ->bulkActions([])
-            ->headerActions([
-                Action::make('refresh')
-                    ->label('Recarregar')
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('gray')
-                    ->action(fn() => $this->redirect(request()->fullUrl())),
-                Action::make('clear')
-                    ->label('Limpar Logs')
-                    ->icon('heroicon-o-trash')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->action(function () {
-                        File::put(storage_path('logs/laravel.log'), '');
-                        $this->notify('success', 'Logs limpos com sucesso!');
-                    }),
-            ]);
+        return [
+            'filtroForm' => $this->makeForm()
+                ->schema($this->getFiltroSchema())
+                ->columns(8),
+        ];
+    }
+
+    public function updated()
+    {
+        $this->filtrar();
+    }
+
+    public function filtrar()
+    {
+        $getData  = $this->getData();
+        $newItens = [];
+
+        foreach ($getData as $item) {
+            $newItens[] = $item;
+        }
+
+        $this->result = array_values($newItens);
+    }
+
+    public function getData()
+    {
+        return [
+            [
+                "numero" => "Um",
+                "letra"  => "Dois",
+            ],
+            [
+                "numero" => "Tres",
+                "letra"  => "Quatro",
+            ]
+        ];
     }
 }
