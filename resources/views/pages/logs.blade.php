@@ -45,13 +45,7 @@
                                 @default text-gray-700
                             @endswitch
                         ">
-                        @if(is_array($log['message']) || is_object($log['message']))
-                            <pre class="whitespace-pre-wrap">{{ print_r($log['message'], true) }}</pre>
-                        @elseif(Str::startsWith($log['message'], '{') && Str::endsWith($log['message'], '}'))
-                            <pre class="whitespace-pre-wrap">{{ json_encode(json_decode($log['message'], true), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
-                        @else
-                            {{ $log['message'] }}
-                        @endif
+                        {{ strtoupper($log['level']) }}
                     </td>
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['message'] }}</td>
                 </tr>

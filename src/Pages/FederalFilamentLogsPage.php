@@ -122,16 +122,8 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
                 $message = $matches[4];
 
-                // Tenta decodificar JSON
-                $decoded = json_decode($message, true);
-                if (json_last_error() === JSON_ERROR_NONE) {
-                    // Formata JSON de forma legível
-                    $message = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-                }
-
-                // Se for array PHP serializado ou string "Array", você pode tentar:
-                if ($message === 'Array') {
-                    $message = print_r(unserialize($matches[4] ?? []), true) ?: 'Array';
+                if(str_contains($message, 'array (')) {
+                    $message = print_r(unserialize($matches[4] ?? []), true);
                 }
 
                 $logs[] = [
