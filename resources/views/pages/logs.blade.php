@@ -1,8 +1,23 @@
 <x-filament::page>
-    {{-- Formulário de filtros --}}
-    <form wire:submit.prevent="filtrar" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        {{ $this->form }}
-    </form>
+    <x-filament::section>
+        <x-filament-panels::form wire:submit="filtrar">
+            {{ $this->form }}
+            <div class="flex justify-center space-x-4">
+                <x-filament::button
+                    color="primary"
+                    icon="heroicon-o-funnel"
+                    icon-alias="panels::widgets.account.logout-button"
+                    labeled-from="sm"
+                    tag="button"
+                    type="submit"
+                    class=""
+                    style="width: 20%; margin-right:20px;"
+                >
+                    Filtrar
+                </x-filament::button>
+            </div>
+        </x-filament-panels::form>
+    </x-filament::section>
 
     {{-- Tabela de logs --}}
     <div class="overflow-x-auto bg-white rounded-lg shadow">
