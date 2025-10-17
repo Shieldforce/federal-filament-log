@@ -122,10 +122,6 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
                 $message = $matches[4];
 
-                if(str_contains($message, 'array (')) {
-                    $message = print_r(unserialize($matches[4] ?? []), true);
-                }
-
                 $logs[] = [
                     'datetime' => $matches[1],
                     'env'      => $matches[2],

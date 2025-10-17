@@ -45,7 +45,7 @@
                                 @default text-gray-700
                             @endswitch
                         ">
-                        {{ strtoupper($log['level']) }}
+                        <pre class="whitespace-pre-wrap">{{ strtoupper($log['level']) }}</pre>
                     </td>
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['message'] }}</td>
                 </tr>
