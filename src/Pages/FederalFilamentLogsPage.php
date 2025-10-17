@@ -9,8 +9,8 @@ use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
@@ -20,32 +20,37 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    protected static string  $view            = 'federal-filament-log::pages.index';
-    protected static ?string $navigationIcon  = 'heroicon-o-list-bullet';
+    protected static string $view = 'federal-filament-log::pages.index';
+
+    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+
     protected static ?string $navigationGroup = 'Logs';
-    protected static ?string $label           = 'Log';
+
+    protected static ?string $label = 'Log';
+
     protected static ?string $navigationLabel = 'Logs do Sistema';
-    protected static ?string $slug            = 'logs';
-    protected static ?string $title           = 'Logs do Sistema';
+
+    protected static ?string $slug = 'logs';
+
+    protected static ?string $title = 'Logs do Sistema';
 
     public ?string $search = '';
-
 
     public static function getLogs(): Collection
     {
         $logFile = storage_path('logs/laravel.log');
 
-        if (!File::exists($logFile)) {
+        if (! File::exists($logFile)) {
             return collect([[
                 'datetime' => now()->toDateTimeString(),
                 'env' => app()->environment(),
                 'level' => 'INFO',
-                'message' => 'Arquivo de log vazio ou inexistente.'
+                'message' => 'Arquivo de log vazio ou inexistente.',
             ]]);
         }
 
         return collect(explode("\n", File::get($logFile)))
-            ->filter(fn($line) => trim($line) !== '')
+            ->filter(fn ($line) => trim($line) !== '')
             ->map(function ($line) {
                 if (preg_match('/\[(.*?)\] (local|production)\.(\w+): (.*)/', $line, $m)) {
                     return [
@@ -80,12 +85,12 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
         $filters = $this->getCachedTableFilters();
 
         if (isset($filters['level'])) {
-            $logs = $logs->filter(fn($log) => $log['level'] === $filters['level']);
+            $logs = $logs->filter(fn ($log) => $log['level'] === $filters['level']);
         }
 
         if (isset($filters['search'])) {
             $search = strtolower($filters['search']);
-            $logs = $logs->filter(fn($log) => str_contains(strtolower($log['message']), $search));
+            $logs = $logs->filter(fn ($log) => str_contains(strtolower($log['message']), $search));
         }
 
         return $logs;
@@ -101,7 +106,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
                 TextColumn::make('level')
                     ->label('Nível')
                     ->badge()
-                    ->color(fn($state) => match ($state) {
+                    ->color(fn ($state) => match ($state) {
                         'ERROR' => 'danger',
                         'WARNING' => 'warning',
                         'INFO' => 'info',
@@ -130,7 +135,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
             ])
             ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(3)
-            ->filtersTriggerAction(fn($action) => $action->button()->label('Filtrar...'))
+            ->filtersTriggerAction(fn ($action) => $action->button()->label('Filtrar...'))
             ->actions([])
             ->bulkActions([])
             ->headerActions([
@@ -138,7 +143,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
                     ->label('Recarregar')
                     ->icon('heroicon-o-arrow-path')
                     ->color('gray')
-                    ->action(fn() => $this->redirect(request()->fullUrl())),
+                    ->action(fn () => $this->redirect(request()->fullUrl())),
                 Action::make('clear')
                     ->label('Limpar Logs')
                     ->icon('heroicon-o-trash')
