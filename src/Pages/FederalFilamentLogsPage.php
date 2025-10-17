@@ -21,7 +21,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
     use InteractsWithTable;
 
     protected static string  $view            = 'federal-filament-log::pages.index';
-    protected static ?string $navigationIcon  = 'heroicon-o-list';
+    protected static ?string $navigationIcon  = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Logs';
     protected static ?string $label           = 'Log';
     protected static ?string $navigationLabel = 'Log';
