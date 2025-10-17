@@ -1,13 +1,17 @@
 <x-filament::page>
     <div class="space-y-6">
         {{-- Formulário de filtros --}}
-        <form wire:submit.prevent="filtrar" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <x-filament::input.wrapper for="search" label="Palavra-chave">
-                <x-filament::input.text wire:model="search" placeholder="Buscar mensagem..." />
-            </x-filament::input.wrapper>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Palavra-chave</label>
+                <input type="text" wire:model="search" placeholder="Buscar mensagem..."
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+            </div>
 
-            <x-filament::input.wrapper for="tipo" label="Tipo/Nível">
-                <x-filament::input.select wire:model="tipo">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Tipo/Nível</label>
+                <select wire:model="tipo"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
                     <option value="">Todos</option>
                     <option value="emergency">EMERGENCY</option>
                     <option value="alert">ALERT</option>
@@ -17,13 +21,15 @@
                     <option value="notice">NOTICE</option>
                     <option value="info">INFO</option>
                     <option value="debug">DEBUG</option>
-                </x-filament::input.select>
-            </x-filament::input.wrapper>
+                </select>
+            </div>
 
-            <x-filament::input.wrapper for="data" label="Data">
-                <x-filament::input.text wire:model="data" placeholder="YYYY-MM-DD" />
-            </x-filament::input.wrapper>
-        </form>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Data</label>
+                <input type="text" wire:model="data" placeholder="YYYY-MM-DD"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+            </div>
+        </div>
 
         {{-- Tabela de logs --}}
         <div class="overflow-x-auto bg-white rounded-lg shadow">
