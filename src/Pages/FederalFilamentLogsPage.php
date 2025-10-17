@@ -2,6 +2,7 @@
 
 namespace Shieldforce\FederalFilamentLog\Pages;
 
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
@@ -31,28 +32,32 @@ class FederalFilamentLogsPage extends Page implements HasForms
     protected function getFormSchema(): array
     {
         return [
-            TextInput::make('search')
-                ->label('Palavra-chave')
-                ->placeholder('Buscar mensagem...'),
+            Grid::make(3)->schema([
 
-            Select::make('tipo')
-                ->label('Tipo/Nível')
-                ->options([
-                    ''          => 'Todos',
-                    'emergency' => 'EMERGENCY',
-                    'alert'     => 'ALERT',
-                    'critical'  => 'CRITICAL',
-                    'error'     => 'ERROR',
-                    'warning'   => 'WARNING',
-                    'notice'    => 'NOTICE',
-                    'info'      => 'INFO',
-                    'debug'     => 'DEBUG',
-                ])
-                ->placeholder('Todos'),
+                TextInput::make('search')
+                    ->label('Palavra-chave')
+                    ->placeholder('Buscar mensagem...'),
 
-            TextInput::make('data')
-                ->label('Data')
-                ->placeholder('YYYY-MM-DD'),
+                Select::make('tipo')
+                    ->label('Tipo/Nível')
+                    ->options([
+                        ''          => 'Todos',
+                        'emergency' => 'EMERGENCY',
+                        'alert'     => 'ALERT',
+                        'critical'  => 'CRITICAL',
+                        'error'     => 'ERROR',
+                        'warning'   => 'WARNING',
+                        'notice'    => 'NOTICE',
+                        'info'      => 'INFO',
+                        'debug'     => 'DEBUG',
+                    ])
+                    ->placeholder('Todos'),
+
+                TextInput::make('data')
+                    ->label('Data')
+                    ->placeholder('YYYY-MM-DD'),
+
+            ])
         ];
     }
 
@@ -112,14 +117,28 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $lines   = explode(PHP_EOL, $content);
         $logs    = [];
 
-        // Regex padrão Laravel log: [2025-10-16 22:15:00] local.INFO: Mensagem
         foreach ($lines as $line) {
             if (preg_match('/\[(.*?)\] (\w+)\.(\w+): (.*)/', $line, $matches)) {
+
+                $message = $matches[4];
+
+                // Tenta decodificar JSON
+                $decoded = json_decode($message, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    // Formata JSON de forma legível
+                    $message = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+                }
+
+                // Se for array PHP serializado ou string "Array", você pode tentar:
+                if ($message === 'Array') {
+                    $message = print_r(unserialize($matches[4] ?? []), true) ?: 'Array';
+                }
+
                 $logs[] = [
                     'datetime' => $matches[1],
                     'env'      => $matches[2],
                     'level'    => strtoupper($matches[3]),
-                    'message'  => $matches[4],
+                    'message'  => $message,
                 ];
             }
         }
