@@ -30,9 +30,7 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
 
     public ?string $search = '';
 
-    /**
-     * Lê os logs do arquivo laravel.log e retorna uma Collection
-     */
+
     public static function getLogs(): Collection
     {
         $logFile = storage_path('logs/laravel.log');
@@ -69,17 +67,11 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
             ->values();
     }
 
-    /**
-     * Query obrigatória para Filament (não usada, só para satisfazer interface)
-     */
-    protected function getTableQuery()
+    /*protected function getTableQuery()
     {
-        return self::getLogs(); // dummy, não é Eloquent
-    }
+        return self::getLogs();
+    }*/
 
-    /**
-     * Retorna os registros da tabela usando Collection
-     */
     protected function getTableRecordsUsing(): Collection
     {
         $logs = self::getLogs();
