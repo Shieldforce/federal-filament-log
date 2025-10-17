@@ -74,28 +74,11 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn() => self::getLogs()) // <-- aqui é a fonte da tabela
             ->columns([
-                TextColumn::make('datetime')
-                    ->label('Data')
-                    ->sortable()
-                    ->toggleable(),
-                TextColumn::make('level')
-                    ->label('Nível')
-                    ->badge()
-                    ->color(fn($state) => match ($state) {
-                        'ERROR' => 'danger',
-                        'WARNING' => 'warning',
-                        'INFO' => 'info',
-                        'DEBUG' => 'gray',
-                        default => 'primary',
-                    }),
-                TextColumn::make('message')
-                    ->label('Mensagem')
-                    ->wrap()
-                    ->searchable(),
+                // ... suas colunas
             ])
-            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+            ->data(fn() => self::getLogs()) // ✅ usa a collection direto aqui
+            ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(3)
             ->filtersTriggerAction(fn(Action $action) => $action->button()->label('Filtrar...'))
             ->actions([])
@@ -113,9 +96,10 @@ class FederalFilamentLogsPage extends Page implements HasForms, HasTable
                     ->color('danger')
                     ->requiresConfirmation()
                     ->action(function () {
-                        File::put(storage_path('logs/laravel.log'), '');
+                        \Illuminate\Support\Facades\File::put(storage_path('logs/laravel.log'), '');
                         $this->notify('success', 'Logs limpos com sucesso!');
                     }),
             ]);
     }
+
 }
