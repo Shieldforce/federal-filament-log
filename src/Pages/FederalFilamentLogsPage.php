@@ -6,7 +6,7 @@ use Filament\Pages\Page;
 
 class FederalFilamentLogsPage extends Page
 {
-    protected static string  $view            = 'federal-filament-log::pages.index';
+    protected static string  $view            = 'federal-filament-log::pages.logs';
     protected static ?string $navigationIcon  = 'heroicon-o-list-bullet';
     protected static ?string $navigationGroup = 'Logs';
     protected static ?string $label           = 'Log';
