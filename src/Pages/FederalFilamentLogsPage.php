@@ -159,19 +159,17 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
     public function limparLogs(): void
     {
-        // Exemplo: limpar todos os arquivos de log da pasta storage/logs
         foreach (glob(storage_path('logs/*.log')) as $file) {
-            file_put_contents($file, ''); // limpa o conteúdo sem excluir
+            file_put_contents($file, '');
         }
 
-        // Atualiza a lista de logs após limpar
-        $this->paginatedLogs = collect();
+        // Recarrega os logs (mantendo a estrutura paginada)
+        $this->filtrar();
 
         Notification::make()
             ->success()
             ->title('Logs limpos com sucesso!')
             ->seconds(5)
             ->send();
-
     }
 }
