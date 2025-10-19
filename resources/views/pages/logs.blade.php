@@ -2,11 +2,11 @@
     <x-filament::section>
         <x-filament-panels::form wire:submit="filtrar">
             {{ $this->form }}
+
             <div class="flex justify-center space-x-4">
                 <x-filament::button
                     color="primary"
                     icon="heroicon-o-funnel"
-                    icon-alias="panels::widgets.account.logout-button"
                     labeled-from="sm"
                     tag="button"
                     type="submit"
@@ -19,7 +19,7 @@
         </x-filament-panels::form>
     </x-filament::section>
 
-
+    {{-- Paginação superior --}}
     <div class="mt-4 min-w-full">
         {{ $this->paginatedLogs->links() }}
     </div>
@@ -36,20 +36,20 @@
             </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-            @forelse($result as $log)
+            @forelse($this->paginatedLogs as $log)
                 <tr>
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['datetime'] }}</td>
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['env'] }}</td>
                     <td class="px-4 py-2 text-sm font-semibold
-                            @switch(strtolower($log['level']))
-                                @case('error') text-red-600 @break
-                                @case('critical') text-red-700 @break
-                                @case('warning') text-yellow-600 @break
-                                @case('info') text-green-600 @break
-                                @case('debug') text-blue-600 @break
-                                @default text-gray-700
-                            @endswitch
-                        ">
+                                @switch(strtolower($log['level']))
+                                    @case('error') text-red-600 @break
+                                    @case('critical') text-red-700 @break
+                                    @case('warning') text-yellow-600 @break
+                                    @case('info') text-green-600 @break
+                                    @case('debug') text-blue-600 @break
+                                    @default text-gray-700
+                                @endswitch
+                            ">
                         <pre class="whitespace-pre-wrap">{{ strtoupper($log['level']) }}</pre>
                     </td>
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['message'] }}</td>
@@ -63,6 +63,7 @@
         </table>
     </div>
 
+    {{-- Paginação inferior --}}
     <div class="mt-4 min-w-full">
         {{ $this->paginatedLogs->links() }}
     </div>

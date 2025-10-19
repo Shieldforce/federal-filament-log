@@ -32,13 +32,12 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
     public array $result = [];
 
-    protected int $perPage = 20; // quantidade de registros por página
+    protected int $perPage = 20; // Quantidade por página
 
     protected function getFormSchema(): array
     {
         return [
             Grid::make(3)->schema([
-
                 TextInput::make('search')
                     ->label('Palavra-chave')
                     ->placeholder('Buscar mensagem...'),
@@ -78,7 +77,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
     public function updated($propertyName)
     {
-        // Sempre reinicia a paginação ao trocar filtros
+        // Reinicia a paginação ao mudar filtro
         $this->resetPage();
         $this->filtrar();
     }
@@ -109,7 +108,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
     }
 
     /**
-     * Retorna os logs paginados sem perder os filtros
+     * Retorna logs paginados, mantendo filtros
      */
     public function getPaginatedLogsProperty()
     {
@@ -126,19 +125,17 @@ class FederalFilamentLogsPage extends Page implements HasForms
         );
     }
 
-    public function getData(): array
+    protected function getData(): array
     {
         $logFile = storage_path('logs/laravel.log');
 
         if (!File::exists($logFile)) {
-            return [
-                [
-                    'datetime' => now()->toDateTimeString(),
-                    'env'      => app()->environment(),
-                    'level'    => 'INFO',
-                    'message'  => 'Arquivo de log vazio ou inexistente.',
-                ]
-            ];
+            return [[
+                'datetime' => now()->toDateTimeString(),
+                'env'      => app()->environment(),
+                'level'    => 'INFO',
+                'message'  => 'Arquivo de log vazio ou inexistente.',
+            ]];
         }
 
         $content = File::get($logFile);
@@ -156,6 +153,6 @@ class FederalFilamentLogsPage extends Page implements HasForms
             }
         }
 
-        return $logs;
+        return array_reverse($logs); // mostra os mais recentes primeiro
     }
 }
