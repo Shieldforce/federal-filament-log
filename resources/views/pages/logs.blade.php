@@ -15,6 +15,18 @@
                 >
                     Filtrar
                 </x-filament::button>
+
+                {{-- Botão Limpar Logs --}}
+                <x-filament::button
+                    color="danger"
+                    icon="heroicon-o-trash"
+                    labeled-from="sm"
+                    wire:click="limparLogs"
+                    type="button"
+                    style="width: 20%;"
+                >
+                    Limpar Logs
+                </x-filament::button>
             </div>
         </x-filament-panels::form>
     </x-filament::section>

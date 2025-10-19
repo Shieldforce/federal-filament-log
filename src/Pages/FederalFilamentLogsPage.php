@@ -90,20 +90,17 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $logs = $this->getData();
 
         if ($this->search) {
-            $logs = array_filter($logs, fn($item) =>
-            Str::contains(strtolower($item['message']), strtolower($this->search))
+            $logs = array_filter($logs, fn($item) => Str::contains(strtolower($item['message']), strtolower($this->search))
             );
         }
 
         if ($this->tipo) {
-            $logs = array_filter($logs, fn($item) =>
-                strtolower($item['level']) === strtolower($this->tipo)
+            $logs = array_filter($logs, fn($item) => strtolower($item['level']) === strtolower($this->tipo)
             );
         }
 
         if ($this->data) {
-            $logs = array_filter($logs, fn($item) =>
-            Str::startsWith($item['datetime'], $this->data)
+            $logs = array_filter($logs, fn($item) => Str::startsWith($item['datetime'], $this->data)
             );
         }
 
@@ -115,9 +112,9 @@ class FederalFilamentLogsPage extends Page implements HasForms
      */
     public function getPaginatedLogsProperty()
     {
-        $page    = $this->getPage();
-        $offset  = ($page - 1) * $this->perPage;
-        $items   = array_slice($this->result, $offset, $this->perPage);
+        $page   = $this->getPage();
+        $offset = ($page - 1) * $this->perPage;
+        $items  = array_slice($this->result, $offset, $this->perPage);
 
         return new LengthAwarePaginator(
             $items,
@@ -157,5 +154,18 @@ class FederalFilamentLogsPage extends Page implements HasForms
         }
 
         return array_reverse($logs); // mostra os mais recentes primeiro
+    }
+
+    public function limparLogs(): void
+    {
+        // Exemplo: limpar todos os arquivos de log da pasta storage/logs
+        foreach (glob(storage_path('logs/*.log')) as $file) {
+            file_put_contents($file, ''); // limpa o conteúdo sem excluir
+        }
+
+        // Atualiza a lista de logs após limpar
+        $this->paginatedLogs = collect();
+
+        $this->notify('success', 'Logs limpos com sucesso!');
     }
 }
