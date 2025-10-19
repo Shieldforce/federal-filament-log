@@ -5,6 +5,7 @@ namespace Shieldforce\FederalFilamentLog\Pages;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -166,6 +167,11 @@ class FederalFilamentLogsPage extends Page implements HasForms
         // Atualiza a lista de logs após limpar
         $this->paginatedLogs = collect();
 
-        $this->notify('success', 'Logs limpos com sucesso!');
+        Notification::make()
+            ->success()
+            ->title('Logs limpos com sucesso!')
+            ->seconds(5)
+            ->send();
+
     }
 }
