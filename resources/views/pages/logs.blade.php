@@ -19,6 +19,11 @@
         </x-filament-panels::form>
     </x-filament::section>
 
+
+    <div class="mt-4 min-w-full">
+        {{ $this->paginatedLogs->links() }}
+    </div>
+
     {{-- Tabela de logs --}}
     <div class="overflow-x-auto bg-white rounded-lg shadow">
         <table class="min-w-full divide-y divide-gray-200">
@@ -56,9 +61,9 @@
             @endforelse
             </tbody>
         </table>
+    </div>
 
-        <div class="mt-4">
-            {{ $this->paginatedLogs->links() }}
-        </div>
+    <div class="mt-4 min-w-full">
+        {{ $this->paginatedLogs->links() }}
     </div>
 </x-filament::page>
