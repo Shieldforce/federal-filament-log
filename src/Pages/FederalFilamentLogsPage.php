@@ -3,32 +3,40 @@
 namespace Shieldforce\FederalFilamentLog\Pages;
 
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
-use Filament\Pages\Page;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Pages\Page;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Livewire\WithPagination;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class FederalFilamentLogsPage extends Page implements HasForms
 {
     use InteractsWithForms;
     use WithPagination;
 
-    protected static string  $view            = 'federal-filament-log::pages.logs';
-    protected static ?string $navigationIcon  = 'heroicon-o-list-bullet';
+    protected static string $view = 'federal-filament-log::pages.logs';
+
+    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+
     protected static ?string $navigationGroup = 'Logs';
-    protected static ?string $label           = 'Log';
+
+    protected static ?string $label = 'Log';
+
     protected static ?string $navigationLabel = 'Logs do Sistema';
-    protected static ?string $slug            = 'logs';
-    protected static ?string $title           = 'Logs do Sistema';
+
+    protected static ?string $slug = 'logs';
+
+    protected static ?string $title = 'Logs do Sistema';
 
     public ?string $search = null;
-    public ?string $tipo   = null;
-    public ?string $data   = null;
+
+    public ?string $tipo = null;
+
+    public ?string $data = null;
 
     public array $result = [];
 
@@ -45,15 +53,15 @@ class FederalFilamentLogsPage extends Page implements HasForms
                 Select::make('tipo')
                     ->label('Tipo/Nível')
                     ->options([
-                        ''          => 'Todos',
+                        '' => 'Todos',
                         'emergency' => 'EMERGENCY',
-                        'alert'     => 'ALERT',
-                        'critical'  => 'CRITICAL',
-                        'error'     => 'ERROR',
-                        'warning'   => 'WARNING',
-                        'notice'    => 'NOTICE',
-                        'info'      => 'INFO',
-                        'debug'     => 'DEBUG',
+                        'alert' => 'ALERT',
+                        'critical' => 'CRITICAL',
+                        'error' => 'ERROR',
+                        'warning' => 'WARNING',
+                        'notice' => 'NOTICE',
+                        'info' => 'INFO',
+                        'debug' => 'DEBUG',
                     ])
                     ->placeholder('Todos'),
 
@@ -68,8 +76,8 @@ class FederalFilamentLogsPage extends Page implements HasForms
     {
         $this->form->fill([
             'search' => $this->search,
-            'tipo'   => $this->tipo,
-            'data'   => $this->data,
+            'tipo' => $this->tipo,
+            'data' => $this->data,
         ]);
 
         $this->filtrar();
@@ -87,20 +95,23 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $logs = $this->getData();
 
         if ($this->search) {
-            $logs = array_filter($logs, fn($item) =>
-            Str::contains(strtolower($item['message']), strtolower($this->search))
+            $logs = array_filter(
+                $logs,
+                fn ($item) => Str::contains(strtolower($item['message']), strtolower($this->search))
             );
         }
 
         if ($this->tipo) {
-            $logs = array_filter($logs, fn($item) =>
-                strtolower($item['level']) === strtolower($this->tipo)
+            $logs = array_filter(
+                $logs,
+                fn ($item) => strtolower($item['level']) === strtolower($this->tipo)
             );
         }
 
         if ($this->data) {
-            $logs = array_filter($logs, fn($item) =>
-            Str::startsWith($item['datetime'], $this->data)
+            $logs = array_filter(
+                $logs,
+                fn ($item) => Str::startsWith($item['datetime'], $this->data)
             );
         }
 
@@ -112,9 +123,9 @@ class FederalFilamentLogsPage extends Page implements HasForms
      */
     public function getPaginatedLogsProperty()
     {
-        $page    = $this->getPage();
-        $offset  = ($page - 1) * $this->perPage;
-        $items   = array_slice($this->result, $offset, $this->perPage);
+        $page = $this->getPage();
+        $offset = ($page - 1) * $this->perPage;
+        $items = array_slice($this->result, $offset, $this->perPage);
 
         return new LengthAwarePaginator(
             $items,
@@ -129,26 +140,26 @@ class FederalFilamentLogsPage extends Page implements HasForms
     {
         $logFile = storage_path('logs/laravel.log');
 
-        if (!File::exists($logFile)) {
+        if (! File::exists($logFile)) {
             return [[
                 'datetime' => now()->toDateTimeString(),
-                'env'      => app()->environment(),
-                'level'    => 'INFO',
-                'message'  => 'Arquivo de log vazio ou inexistente.',
+                'env' => app()->environment(),
+                'level' => 'INFO',
+                'message' => 'Arquivo de log vazio ou inexistente.',
             ]];
         }
 
         $content = File::get($logFile);
-        $lines   = explode(PHP_EOL, $content);
-        $logs    = [];
+        $lines = explode(PHP_EOL, $content);
+        $logs = [];
 
         foreach ($lines as $line) {
             if (preg_match('/\[(.*?)\] (\w+)\.(\w+): (.*)/', $line, $matches)) {
                 $logs[] = [
                     'datetime' => $matches[1],
-                    'env'      => $matches[2],
-                    'level'    => strtoupper($matches[3]),
-                    'message'  => $matches[4],
+                    'env' => $matches[2],
+                    'level' => strtoupper($matches[3]),
+                    'message' => $matches[4],
                 ];
             }
         }
