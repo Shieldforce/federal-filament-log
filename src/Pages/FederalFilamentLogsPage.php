@@ -2,6 +2,7 @@
 
 namespace Shieldforce\FederalFilamentLog\Pages;
 
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
@@ -61,8 +62,9 @@ class FederalFilamentLogsPage extends Page implements HasForms
                     ])
                     ->placeholder('Todos'),
 
-                TextInput::make('data')
+                DatePicker::make('data')
                     ->label('Data')
+                    ->format('Y-m-d')
                     ->placeholder('YYYY-MM-DD'),
             ]),
         ];
