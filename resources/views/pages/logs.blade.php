@@ -56,5 +56,9 @@
             @endforelse
             </tbody>
         </table>
+
+        <div class="mt-4">
+            {{ $this->paginatedLogs->links() }}
+        </div>
     </div>
 </x-filament::page>
