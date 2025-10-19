@@ -1,6 +1,6 @@
 <?php
 
-namespace Shieldforce\CheckoutPayment\Services\Permissions;
+namespace Shieldforce\FederalFilamentLog\Services\Permissions;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Gate;

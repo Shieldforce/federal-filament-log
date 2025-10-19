@@ -12,9 +12,12 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Livewire\WithPagination;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Shieldforce\FederalFilamentLog\Services\Permissions\CanPageTrait;
 
 class FederalFilamentLogsPage extends Page implements HasForms
 {
+    use CanPageTrait;
+
     use InteractsWithForms;
     use WithPagination;
 
