@@ -20,8 +20,14 @@
     </x-filament::section>
 
     {{-- Paginação superior --}}
-    <div class="mt-4 min-w-full">
-        {{ $this->paginatedLogs->links() }}
+    <div class="flex justify-between items-center mt-6 mb-3">
+        <div class="text-sm text-gray-500">
+            {{ $this->paginatedLogs->firstItem() }} até {{ $this->paginatedLogs->lastItem() }}
+            de {{ $this->paginatedLogs->total() }} resultados
+        </div>
+        <div>
+            {{ $this->paginatedLogs->links() }}
+        </div>
     </div>
 
     {{-- Tabela de logs --}}
@@ -64,7 +70,13 @@
     </div>
 
     {{-- Paginação inferior --}}
-    <div class="mt-4 min-w-full">
-        {{ $this->paginatedLogs->links() }}
+    <div class="flex justify-between items-center mt-6 mb-2">
+        <div class="text-sm text-gray-500">
+            {{ $this->paginatedLogs->firstItem() }} até {{ $this->paginatedLogs->lastItem() }}
+            de {{ $this->paginatedLogs->total() }} resultados
+        </div>
+        <div>
+            {{ $this->paginatedLogs->links() }}
+        </div>
     </div>
 </x-filament::page>
