@@ -174,4 +174,9 @@ class FederalFilamentLogsPage extends Page implements HasForms
             ->seconds(5)
             ->send();
     }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return config()->get('federal-filament-log.sidebar_group');
+    }
 }
