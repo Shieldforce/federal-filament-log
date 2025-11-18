@@ -106,33 +106,48 @@
                         {{ strtoupper($log['level']) }}
                     </td>
 
-                    <td class="px-4 py-2 text-sm text-gray-700 align-top">
+                    <td class="px-4 py-2 align-top">
 
-                        {{-- Caixa com limite de altura e scroll --}}
-                        <div class="max-h-[150px] overflow-y-auto whitespace-pre-wrap bg-gray-900 text-gray-100 p-2 rounded">
+                        @php
+                            $linhas = explode("\n", $log['message']);
+                            $primeira = $linhas[0] ?? '';
+                            $temMais = count($linhas) > 1;
+                        @endphp
 
-                            {{-- Apenas a primeira linha --}}
-                            {{ $primeira }}
+                        {{-- wrapper para isolar do Filament --}}
+                        <div class="bg-transparent !bg-transparent">
 
-                            {{-- Indicador de conteúdo adicional --}}
-                            @if($temMais)
-                                <div class="mt-2 text-center text-xs text-gray-300">
-                                    (... mais linhas)
-                                </div>
-                            @endif
-                        </div>
-
-                        {{-- Botão para modal --}}
-                        @if($temMais)
-                            <x-filament::button
-                                color="primary"
-                                size="xs"
-                                class="mt-2"
-                                wire:click="abrirModal({{ json_encode($log) }})"
+                            {{-- Caixa escura com limite de altura --}}
+                            <div
+                                class="rounded p-2 overflow-y-auto whitespace-pre-wrap"
+                                style="
+                                    max-height:150px;
+                                    background:#111 !important;
+                                    color:#f1f1f1 !important;
+                                    border:1px solid #333 !important;
+                                "
                             >
-                                Ver mais
-                            </x-filament::button>
-                        @endif
+                                {{ $primeira }}
+
+                                @if($temMais)
+                                    <div style="margin-top:6px; text-align:center; font-size:11px; color:#ccc;">
+                                        (... mais linhas)
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if($temMais)
+                                <x-filament::button
+                                    color="primary"
+                                    size="xs"
+                                    class="mt-2"
+                                    wire:click="abrirModal({{ json_encode($log) }})"
+                                >
+                                    Ver mais
+                                </x-filament::button>
+                            @endif
+
+                        </div>
 
                     </td>
                 </tr>
