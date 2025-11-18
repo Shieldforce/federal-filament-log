@@ -42,7 +42,6 @@ class FederalFilamentLogsPage extends Page implements HasForms
     {
         $raw = base64_decode($mensagemBase64);
 
-        // Se for JSON, formatar
         $decoded = json_decode($raw, true);
         if (json_last_error() === JSON_ERROR_NONE) {
             $raw = json_encode(
@@ -51,7 +50,6 @@ class FederalFilamentLogsPage extends Page implements HasForms
             );
         }
 
-        // Colorização simples por termos chave
         $colored = $raw;
 
         $patterns = [
@@ -70,28 +68,11 @@ class FederalFilamentLogsPage extends Page implements HasForms
         }
 
         $this->modalContentColored = $colored;
-        $this->modalLog            = true;
-    }
+        $this->modalLog = true;
 
-    /*public function abrirLogCompleto($mensagemBase64)
-    {
-        $conteudo = base64_decode($mensagemBase64);
-
-        $decoded = json_decode($conteudo, true);
-
-        if (json_last_error() === JSON_ERROR_NONE) {
-            $this->modalContent = json_encode(
-                $decoded,
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-            );
-        } else {
-            $this->modalContent = $conteudo;
-        }
-
-        // MUITO IMPORTANTE → Somente assim o modal abre!
+        // ⬇️ AQUI! OBRIGATÓRIO PARA O MODAL ABRIR
         $this->dispatch('open-modal', id: 'modal-log');
-    }*/
-
+    }
 
     protected function getFormSchema(): array
     {
