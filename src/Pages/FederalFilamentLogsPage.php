@@ -30,14 +30,12 @@ class FederalFilamentLogsPage extends Page implements HasForms
     protected static ?string $navigationLabel = 'Logs do Sistema';
     protected static ?string $slug            = 'logs';
     protected static ?string $title           = 'Logs do Sistema';
-
-    public ?string $search = null;
-    public ?string $tipo   = null;
-    public ?string $data   = null;
-
-    public array $result = [];
-
-    protected int $perPage = 20; // Quantidade por página
+    public ?string           $search          = null;
+    public ?string           $tipo            = null;
+    public ?string           $data            = null;
+    public array             $result          = [];
+    protected int            $perPage         = 20; // Quantidade por página
+    public ?array            $modalLog        = null;
 
     protected function getFormSchema(): array
     {
@@ -79,6 +77,11 @@ class FederalFilamentLogsPage extends Page implements HasForms
         ]);
 
         $this->filtrar();
+    }
+
+    public function abrirModal($log)
+    {
+        $this->modalLog = $log;
     }
 
     public function updated($propertyName)
@@ -175,7 +178,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $content = File::get($logFile);
         $lines   = explode("\n", $content);
 
-        $logs = [];
+        $logs    = [];
         $current = null;
 
         foreach ($lines as $line) {
