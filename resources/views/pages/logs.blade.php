@@ -4,48 +4,39 @@
     @if($modalLog)
         <x-filament::modal
             id="modal-log"
-            icon="heroicon-o-eye"
-            heading="Log completo"
             width="4xl"
+            heading="Log completo"
+            icon="heroicon-o-eye"
+            wire:model="modalLog"
             close-button
         >
-            <div class="max-h-[70vh] overflow-y-auto bg-gray-900 text-gray-200 p-4 rounded">
-                <pre class="whitespace-pre-wrap text-sm">{{ $modalLog['message'] }}</pre>
+            <div class="bg-gray-900 text-green-400 p-4 rounded-lg max-h-[70vh] overflow-y-auto text-sm font-mono">
+                <pre class="whitespace-pre-wrap">
+{!! $modalContent !!}
+                </pre>
             </div>
-
-            <x-slot name="footer">
-                <x-filament::button
-                    color="gray"
-                    x-on:click="$dispatch('close-modal', { id: 'modal-log' })"
-                >
-                    Fechar
-                </x-filament::button>
-            </x-slot>
         </x-filament::modal>
     @endif
 
 
+    {{-- Filtros --}}
     <x-filament::section>
         <x-filament-panels::form wire:submit="filtrar">
             {{ $this->form }}
 
-            <div class="flex justify-center space-x-4">
+            <div class="flex justify-center space-x-4 mt-4">
                 <x-filament::button
                     color="primary"
                     icon="heroicon-o-funnel"
-                    labeled-from="sm"
-                    tag="button"
                     type="submit"
                     style="width: 20%; margin-right:20px;"
                 >
                     Filtrar
                 </x-filament::button>
 
-                {{-- Botão Limpar Logs --}}
                 <x-filament::button
                     color="danger"
                     icon="heroicon-o-trash"
-                    labeled-from="sm"
                     wire:click="limparLogs"
                     type="button"
                     style="width: 20%;"
@@ -55,7 +46,6 @@
             </div>
         </x-filament-panels::form>
     </x-filament::section>
-
 
     {{-- Paginação superior --}}
     <div class="flex justify-between items-center mt-6 mb-3">
@@ -69,15 +59,24 @@
     </div>
 
 
-    {{-- Tabela --}}
+    {{-- Tabela de Logs --}}
     <div class="overflow-x-auto bg-white rounded-lg shadow">
+
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
             <tr>
-                <th class="px-4 py-2 text-xs font-medium text-gray-500">Data/Hora</th>
-                <th class="px-4 py-2 text-xs font-medium text-gray-500">Ambiente</th>
-                <th class="px-4 py-2 text-xs font-medium text-gray-500">Tipo</th>
-                <th class="px-4 py-2 text-xs font-medium text-gray-500">Mensagem</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Data/Hora
+                </th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ambiente
+                </th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tipo
+                </th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Mensagem
+                </th>
             </tr>
             </thead>
 
@@ -85,9 +84,10 @@
             @forelse($this->paginatedLogs as $log)
 
                 @php
-                    $linhas = explode("\n", $log['message']);
-                    $primeira = $linhas[0] ?? '';
-                    $temMais = count($linhas) > 1;
+                    $message = $log['message'];
+                    $isMultiline = str_contains($message, "\n")
+                                    || strlen($message) > 150
+                                    || Str::startsWith(trim($message), ['[', '{']);
                 @endphp
 
                 <tr>
@@ -95,72 +95,50 @@
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['env'] }}</td>
 
                     <td class="px-4 py-2 text-sm font-semibold
-                        @switch(strtolower($log['level']))
-                            @case('error') text-red-600 @break
-                            @case('critical') text-red-700 @break
-                            @case('warning') text-yellow-600 @break
-                            @case('info') text-green-600 @break
-                            @case('debug') text-blue-600 @break
-                            @default text-gray-700
-                        @endswitch">
-                        {{ strtoupper($log['level']) }}
+                                @switch(strtolower($log['level']))
+                                    @case('error') text-red-600 @break
+                                    @case('critical') text-red-700 @break
+                                    @case('warning') text-yellow-600 @break
+                                    @case('info') text-green-600 @break
+                                    @case('debug') text-blue-600 @break
+                                    @default text-gray-700
+                                @endswitch
+                        ">
+                        <pre class="whitespace-pre-wrap">{{ strtoupper($log['level']) }}</pre>
                     </td>
 
-                    <td class="px-4 py-2 align-top">
+                    <td class="px-4 py-2 text-sm text-gray-700">
+                        @if ($isMultiline)
+                            <div class="flex items-center space-x-2">
+                                <span class="truncate max-w-[350px] block text-gray-600">
+                                    {!! nl2br(e(Str::limit($message, 150))) !!}
+                                </span>
 
-                        @php
-                            $linhas = explode("\n", $log['message']);
-                            $primeira = $linhas[0] ?? '';
-                            $temMais = count($linhas) > 1;
-                        @endphp
-
-                        {{-- wrapper para isolar do Filament --}}
-                        <div class="bg-transparent !bg-transparent">
-
-                            {{-- Caixa escura com limite de altura --}}
-                            <div
-                                class="rounded p-2 overflow-y-auto whitespace-pre-wrap"
-                                style="
-                                    max-height:150px;
-                                    background:#111 !important;
-                                    color:#f1f1f1 !important;
-                                    border:1px solid #333 !important;
-                                "
-                            >
-                                {{ $primeira }}
-
-                                @if($temMais)
-                                    <div style="margin-top:6px; text-align:center; font-size:11px; color:#ccc;">
-                                        (... mais linhas)
-                                    </div>
-                                @endif
-                            </div>
-
-                            @if($temMais)
                                 <x-filament::button
                                     color="primary"
+                                    icon="heroicon-o-eye"
                                     size="xs"
-                                    class="mt-2"
-                                    wire:click="abrirModal({{ json_encode($log) }})"
+                                    wire:click="abrirLogCompleto('{{ base64_encode($message) }}')"
                                 >
-                                    Ver mais
+                                    Ver
                                 </x-filament::button>
-                            @endif
-
-                        </div>
-
+                            </div>
+                        @else
+                            {{ $message }}
+                        @endif
                     </td>
                 </tr>
 
             @empty
                 <tr>
-                    <td colspan="4" class="px-4 py-4 text-center text-gray-500">
+                    <td colspan="4" class="px-4 py-2 text-center text-gray-500">
                         Nenhum log encontrado.
                     </td>
                 </tr>
             @endforelse
             </tbody>
         </table>
+
     </div>
 
 
