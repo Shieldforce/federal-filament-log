@@ -11,7 +11,7 @@
             close-button
         >
             <div class="bg-gray-900 text-green-400 p-4 rounded-lg max-h-[70vh] overflow-y-auto text-sm font-mono">
-                <pre class="whitespace-pre-wrap">
+                <pre class="whitespace-pre-wrap break-words">
 {!! $modalContent !!}
                 </pre>
             </div>
@@ -85,9 +85,10 @@
 
                 @php
                     $message = $log['message'];
+
                     $isMultiline = str_contains($message, "\n")
-                                    || strlen($message) > 150
-                                    || Str::startsWith(trim($message), ['[', '{']);
+                        || strlen($message) > 200
+                        || Str::startsWith(trim($message), ['[', '{']);
                 @endphp
 
                 <tr>
@@ -108,24 +109,39 @@
                     </td>
 
                     <td class="px-4 py-2 text-sm text-gray-700">
-                        @if ($isMultiline)
-                            <div class="flex items-center space-x-2">
-                                <span class="truncate max-w-[350px] block text-gray-600">
-                                    {!! nl2br(e(Str::limit($message, 150))) !!}
-                                </span>
 
-                                <x-filament::button
-                                    color="primary"
-                                    icon="heroicon-o-eye"
-                                    size="xs"
-                                    wire:click="abrirLogCompleto('{{ base64_encode($message) }}')"
-                                >
-                                    Ver
-                                </x-filament::button>
+                        {{-- NOVO PREVIEW MELHORADO --}}
+                        @if ($isMultiline)
+                            <div class="flex items-start space-x-2 max-w-[450px]">
+
+                                {{-- Texto com limitador + quebra automática + clamp --}}
+                                <div class="flex flex-col max-w-[450px]">
+                                    <span class="
+                                        text-gray-700
+                                        whitespace-pre-wrap
+                                        break-words
+                                        block
+                                        max-w-full
+                                        overflow-hidden
+                                        text-ellipsis
+                                        line-clamp-5
+                                    ">
+                                        {{ Str::limit($message, 240) }}
+                                    </span>
+
+                                    <button
+                                        class="text-primary-600 hover:text-primary-800 text-xs mt-1 underline"
+                                        wire:click="abrirLogCompleto('{{ base64_encode($message) }}')"
+                                    >
+                                        Ver completo →
+                                    </button>
+                                </div>
+
                             </div>
                         @else
                             {{ $message }}
                         @endif
+
                     </td>
                 </tr>
 
