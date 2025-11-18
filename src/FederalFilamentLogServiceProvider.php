@@ -17,7 +17,8 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class FederalFilamentLogServiceProvider extends PackageServiceProvider
 {
-    public static string $name          = 'federal-filament-log';
+    public static string $name = 'federal-filament-log';
+
     public static string $viewNamespace = 'federal-filament-log';
 
     public function configurePackage(Package $package): void
@@ -84,7 +85,7 @@ class FederalFilamentLogServiceProvider extends PackageServiceProvider
         }
 
         // Testing
-        Testable::mixin(new TestsFederalFilamentLog());
+        Testable::mixin(new TestsFederalFilamentLog);
     }
 
     protected function getAssetPackageName(): ?string
