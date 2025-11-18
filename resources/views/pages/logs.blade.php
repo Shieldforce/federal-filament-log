@@ -1,22 +1,17 @@
 <x-filament::page>
 
     {{-- Modal para visualizar log completo --}}
-    @if($modalLog)
-        <x-filament::modal
-            id="modal-log"
-            width="4xl"
-            heading="Log completo"
-            icon="heroicon-o-eye"
-            wire:model="modalLog"
-            close-button
-        >
-            <div class="bg-gray-900 text-green-400 p-4 rounded-lg max-h-[70vh] overflow-y-auto text-sm font-mono">
-                <pre class="whitespace-pre-wrap break-words">
-{!! $modalContent !!}
-                </pre>
-            </div>
-        </x-filament::modal>
-    @endif
+    <x-filament::modal
+        id="modal-log"
+        width="4xl"
+        heading="Log completo"
+        icon="heroicon-o-eye"
+        close-button
+    >
+        <div class="bg-gray-900 text-green-400 p-4 rounded-lg max-h-[70vh] overflow-y-auto text-sm font-mono">
+            <pre class="whitespace-pre-wrap break-words">{!! $modalContent !!}</pre>
+        </div>
+    </x-filament::modal>
 
 
     {{-- Filtros --}}
@@ -54,30 +49,20 @@
             {{ $this->paginatedLogs->firstItem() }} até {{ $this->paginatedLogs->lastItem() }}
             de {{ $this->paginatedLogs->total() }} resultados
         </div>
-        <div>
-            {{ $this->paginatedLogs->links() }}
-        </div>
+        <div>{{ $this->paginatedLogs->links() }}</div>
     </div>
 
 
-    {{-- Tabela de Logs --}}
+    {{-- Tabela --}}
     <div class="overflow-x-auto bg-white rounded-lg shadow">
 
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
             <tr>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Data/Hora
-                </th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Ambiente
-                </th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tipo
-                </th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Mensagem
-                </th>
+                <th class="px-4 py-2 text-left text-xs font-medium">Data/Hora</th>
+                <th class="px-4 py-2 text-left text-xs font-medium">Ambiente</th>
+                <th class="px-4 py-2 text-left text-xs font-medium">Tipo</th>
+                <th class="px-4 py-2 text-left text-xs font-medium">Mensagem</th>
             </tr>
             </thead>
 
@@ -86,15 +71,14 @@
 
                 @php
                     $message = $log['message'];
-
                     $isMultiline = str_contains($message, "\n")
                         || strlen($message) > 200
                         || Str::startsWith(trim($message), ['[', '{']);
                 @endphp
 
                 <tr>
-                    <td class="px-4 py-2 text-sm text-gray-700">{{ $log['datetime'] }}</td>
-                    <td class="px-4 py-2 text-sm text-gray-700">{{ $log['env'] }}</td>
+                    <td class="px-4 py-2 text-sm">{{ $log['datetime'] }}</td>
+                    <td class="px-4 py-2 text-sm">{{ $log['env'] }}</td>
 
                     <td class="px-4 py-2 text-sm font-semibold
                         @switch(strtolower($log['level']))
@@ -106,39 +90,23 @@
                             @default text-gray-700
                         @endswitch
                     ">
-                        <pre class="whitespace-pre-wrap">{{ strtoupper($log['level']) }}</pre>
+                        {{ strtoupper($log['level']) }}
                     </td>
 
                     <td class="px-4 py-2 text-sm text-gray-700">
 
-                        {{-- PREVIEW MELHORADO + SEM SCROLL HORIZONTAL --}}
                         @if ($isMultiline)
-                            <div class="flex items-start space-x-2 max-w-[450px]">
-
-                                {{-- Texto truncado elegante --}}
-                                <div class="flex flex-col max-w-[450px]">
-                                    <span class="
-                                        text-gray-700
-                                        whitespace-pre-wrap
-                                        break-words
-                                        block
-                                        max-w-full
-                                        overflow-hidden
-                                        text-ellipsis
-                                        line-clamp-5
-                                    ">
-                                        {{ Str::limit($message, 240) }}
-                                    </span>
-
-                                    {{-- BOTÃO FUNCIONANDO (agora com @json) --}}
-                                    <button
-                                        class="text-primary-600 hover:text-primary-800 text-xs mt-1 underline"
-                                        wire:click='abrirLogCompleto(@json(base64_encode($message)))'
-                                    >
-                                        Ver completo →
-                                    </button>
+                            <div class="max-w-[450px]">
+                                <div class="text-gray-700 whitespace-pre-wrap break-words line-clamp-5">
+                                    {{ Str::limit($message, 240) }}
                                 </div>
 
+                                <button
+                                    class="text-primary-600 hover:text-primary-800 text-xs mt-1 underline"
+                                    wire:click="abrirLogCompleto('{{ base64_encode($message) }}')"
+                                >
+                                    Ver completo →
+                                </button>
                             </div>
                         @else
                             {{ $message }}
@@ -165,9 +133,7 @@
             {{ $this->paginatedLogs->firstItem() }} até {{ $this->paginatedLogs->lastItem() }}
             de {{ $this->paginatedLogs->total() }} resultados
         </div>
-        <div>
-            {{ $this->paginatedLogs->links() }}
-        </div>
+        <div>{{ $this->paginatedLogs->links() }}</div>
     </div>
 
 </x-filament::page>

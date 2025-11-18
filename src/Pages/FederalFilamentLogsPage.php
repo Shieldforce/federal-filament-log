@@ -56,7 +56,8 @@ class FederalFilamentLogsPage extends Page implements HasForms
             $this->modalContent = $conteudo;
         }
 
-        $this->modalLog = true;
+        // MUITO IMPORTANTE → Somente assim o modal abre!
+        $this->dispatch('open-modal', id: 'modal-log');
     }
 
 
