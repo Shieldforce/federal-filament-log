@@ -7,7 +7,7 @@ use Filament\Panel;
 
 class FederalFilamentLogPlugin implements Plugin
 {
-    public string $labelGroupSidebar = "Logs";
+    public string $labelGroupSidebar = 'Logs';
 
     public function getId(): string
     {
@@ -43,9 +43,9 @@ class FederalFilamentLogPlugin implements Plugin
 
     public function setLabelGroupSidebar(
         string $labelGroupSidebar
-    ): static
-    {
+    ): static {
         $this->labelGroupSidebar = $labelGroupSidebar;
+
         return $this;
     }
 
