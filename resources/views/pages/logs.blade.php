@@ -47,6 +47,7 @@
         </x-filament-panels::form>
     </x-filament::section>
 
+
     {{-- Paginação superior --}}
     <div class="flex justify-between items-center mt-6 mb-3">
         <div class="text-sm text-gray-500">
@@ -96,25 +97,25 @@
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['env'] }}</td>
 
                     <td class="px-4 py-2 text-sm font-semibold
-                                @switch(strtolower($log['level']))
-                                    @case('error') text-red-600 @break
-                                    @case('critical') text-red-700 @break
-                                    @case('warning') text-yellow-600 @break
-                                    @case('info') text-green-600 @break
-                                    @case('debug') text-blue-600 @break
-                                    @default text-gray-700
-                                @endswitch
-                        ">
+                        @switch(strtolower($log['level']))
+                            @case('error') text-red-600 @break
+                            @case('critical') text-red-700 @break
+                            @case('warning') text-yellow-600 @break
+                            @case('info') text-green-600 @break
+                            @case('debug') text-blue-600 @break
+                            @default text-gray-700
+                        @endswitch
+                    ">
                         <pre class="whitespace-pre-wrap">{{ strtoupper($log['level']) }}</pre>
                     </td>
 
                     <td class="px-4 py-2 text-sm text-gray-700">
 
-                        {{-- NOVO PREVIEW MELHORADO --}}
+                        {{-- PREVIEW MELHORADO + SEM SCROLL HORIZONTAL --}}
                         @if ($isMultiline)
                             <div class="flex items-start space-x-2 max-w-[450px]">
 
-                                {{-- Texto com limitador + quebra automática + clamp --}}
+                                {{-- Texto truncado elegante --}}
                                 <div class="flex flex-col max-w-[450px]">
                                     <span class="
                                         text-gray-700
@@ -129,9 +130,10 @@
                                         {{ Str::limit($message, 240) }}
                                     </span>
 
+                                    {{-- BOTÃO FUNCIONANDO (agora com @json) --}}
                                     <button
                                         class="text-primary-600 hover:text-primary-800 text-xs mt-1 underline"
-                                        wire:click="abrirLogCompleto('{{ base64_encode($message) }}')"
+                                        wire:click='abrirLogCompleto(@json(base64_encode($message)))'
                                     >
                                         Ver completo →
                                     </button>
@@ -154,7 +156,6 @@
             @endforelse
             </tbody>
         </table>
-
     </div>
 
 
