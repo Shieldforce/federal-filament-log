@@ -1,131 +1,130 @@
 <x-filament::page>
 
     {{-- ======================= MODAL DO TERMINAL ======================= --}}
-    <x-filament::modal
-        id="modal-log"
-        width="7xl"
-        heading="Terminal de Logs"
-        icon="heroicon-o-command-line"
-        close-button
-    >
-        <div class="p-2">
+    @if($modalLog)
+        <x-filament::modal
+            id="modal-log"
+            width="7xl"
+            heading="Terminal de Logs"
+            icon="heroicon-o-command-line"
+            close-button
+        >
+            <div class="p-2">
 
-            {{-- Barra de ações --}}
-            <div class="flex justify-between mb-3 px-2">
-                <div class="flex gap-2">
-                    <button
-                        onclick="copyTerminalText()"
-                        class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm"
-                    >
-                        Copiar
-                    </button>
+                {{-- Barra de ações --}}
+                <div class="flex justify-between mb-3 px-2">
+                    <div class="flex gap-2">
+                        <button onclick="copyTerminalText()"
+                                class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm">
+                            Copiar
+                        </button>
 
-                    <button
-                        onclick="downloadTerminalText()"
-                        class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm"
-                    >
-                        Baixar .txt
-                    </button>
+                        <button onclick="downloadTerminalText()"
+                                class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm">
+                            Baixar .txt
+                        </button>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="scrollTopTerminal()"
+                                class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm">
+                            Topo
+                        </button>
+
+                        <button onclick="scrollBottomTerminal()"
+                                class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm">
+                            Fundo
+                        </button>
+                    </div>
                 </div>
 
-                <div class="flex gap-2">
-                    <button
-                        onclick="scrollTopTerminal()"
-                        class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm"
-                    >
-                        Topo
-                    </button>
+                {{-- Terminal --}}
+                <div id="terminal-container"
+                     class="bg-black text-green-400 p-4 rounded-lg shadow-2xl max-h-[75vh] overflow-y-auto font-mono text-sm border border-green-500/40"
+                     style="box-shadow: 0 0 12px rgba(0,255,100,0.35), inset 0 0 15px rgba(0,255,100,0.15);">
 
-                    <button
-                        onclick="scrollBottomTerminal()"
-                        class="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white rounded text-sm"
-                    >
-                        Fundo
-                    </button>
-                </div>
-            </div>
+                    {{-- Cabeçalho --}}
+                    <div class="flex items-center space-x-2 mb-4 select-none">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
 
-            {{-- Terminal --}}
-            <div id="terminal-container"
-                 class="bg-black text-green-400 p-4 rounded-lg shadow-2xl max-h-[75vh] overflow-y-auto font-mono text-sm border border-green-500/40"
-                 style="box-shadow: 0 0 12px rgba(0,255,100,0.35), inset 0 0 15px rgba(0,255,100,0.15);">
-
-                {{-- Cabeçalho estilizado --}}
-                <div class="flex items-center space-x-2 mb-4 select-none">
-                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-
-                    <span class="ml-3 text-green-400 tracking-widest font-bold">
+                        <span class="ml-3 text-green-400 tracking-widest font-bold">
                         ~/logs/system.log
                     </span>
+                    </div>
+
+                    {{-- Conteúdo --}}
+                    <div id="terminal-content"
+                         class="whitespace-pre-wrap break-words leading-relaxed text-green-400">
+                    </div>
                 </div>
-
-                {{-- Conteúdo real --}}
-                <div id="terminal-content" class="whitespace-pre-wrap break-words leading-relaxed text-green-400"></div>
-
             </div>
-        </div>
 
-        {{-- ======================= SCRIPTS ======================= --}}
-        <script>
-            const rawColored = @json($modalContentColored ?? '');
+            {{-- Scripts --}}
+            <script>
+                const rawColored = @json($modalContentColored ?? '');
 
-            function renderTerminal() {
-                const container = document.getElementById('terminal-content')
+                function renderTerminal() {
+                    const container = document.getElementById('terminal-content')
+                    if (!rawColored) {
+                        container.innerHTML = "<span class='text-gray-500'>Nenhum conteúdo encontrado.</span>"
+                        return
+                    }
 
-                if (!rawColored) {
-                    container.innerHTML = "<span class='text-gray-500'>Nenhum conteúdo encontrado.</span>"
-                    return
+                    container.innerHTML = rawColored
+                        .split('\n')
+                        .map((line, i) =>
+                            `<div class='flex items-start'>
+                            <span class='text-gray-600 select-none w-12 text-right pr-3'>${i + 1}</span>
+                            <span class='flex-1'>${line}</span>
+                        </div>`
+                        )
+                        .join('') + `<span class='blinking-cursor'>█</span>`
                 }
 
-                const lines = rawColored.split('\n').map((line, i) => `
-                    <div class="flex items-start">
-                        <span class="text-gray-600 select-none w-12 text-right pr-3">${i + 1}</span>
-                        <span class="flex-1">${line}</span>
-                    </div>
-                `).join('')
+                function copyTerminalText() {
+                    navigator.clipboard.writeText(rawColored.replace(/<[^>]+>/g, ''))
+                }
 
-                container.innerHTML = lines + `<span class="blinking-cursor">█</span>`
-            }
+                function downloadTerminalText() {
+                    const blob = new Blob(
+                        [rawColored.replace(/<[^>]+>/g, '')],
+                        { type: 'text/plain' }
+                    )
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = 'log.txt'
+                    a.click()
+                }
 
-            function copyTerminalText() {
-                navigator.clipboard.writeText(rawColored.replace(/<[^>]+>/g, ''))
-            }
+                function scrollTopTerminal() {
+                    document.getElementById('terminal-container').scrollTop = 0
+                }
 
-            function downloadTerminalText() {
-                const blob = new Blob([rawColored.replace(/<[^>]+>/g, '')], { type: 'text/plain' })
-                const url = URL.createObjectURL(blob)
-                const a = document.createElement('a')
-                a.href = url
-                a.download = 'log.txt'
-                a.click()
-            }
+                function scrollBottomTerminal() {
+                    const el = document.getElementById('terminal-container')
+                    el.scrollTop = el.scrollHeight
+                }
 
-            function scrollTopTerminal() {
-                document.getElementById('terminal-container').scrollTop = 0
-            }
+                document.addEventListener('DOMContentLoaded', renderTerminal)
+                document.addEventListener('livewire:navigated', renderTerminal)
+            </script>
 
-            function scrollBottomTerminal() {
-                const el = document.getElementById('terminal-container')
-                el.scrollTop = el.scrollHeight
-            }
+            <style>
+                .blinking-cursor {
+                    animation: blink 0.9s step-end infinite;
+                    display: inline-block;
+                }
+                @keyframes blink {
+                    50% { opacity: 0; }
+                }
+            </style>
 
-            document.addEventListener('DOMContentLoaded', renderTerminal)
-            document.addEventListener('livewire:navigated', renderTerminal)
-        </script>
+        </x-filament::modal>
+    @endif
 
-        <style>
-            .blinking-cursor {
-                animation: blink 0.9s step-end infinite;
-                display: inline-block;
-            }
-            @keyframes blink {
-                50% { opacity: 0; }
-            }
-        </style>
-
-    </x-filament::modal>
 
     {{-- ======================= FILTROS ======================= --}}
     <x-filament::section>
@@ -133,24 +132,16 @@
             {{ $this->form }}
 
             <div class="flex justify-center space-x-4 mt-4">
-                <x-filament::button
-                    color="primary"
-                    icon="heroicon-o-funnel"
-                    type="submit"
-                    class="w-40"
-                >
+
+                <x-filament::button color="primary" icon="heroicon-o-funnel" type="submit" class="w-40">
                     Filtrar
                 </x-filament::button>
 
-                <x-filament::button
-                    color="danger"
-                    icon="heroicon-o-trash"
-                    wire:click="limparLogs"
-                    type="button"
-                    class="w-40"
-                >
+                <x-filament::button color="danger" icon="heroicon-o-trash" wire:click="limparLogs"
+                                    type="button" class="w-40">
                     Limpar Logs
                 </x-filament::button>
+
             </div>
         </x-filament-panels::form>
     </x-filament::section>
@@ -190,6 +181,7 @@
                 <tr>
                     <td class="px-4 py-2 text-sm">{{ $log['datetime'] }}</td>
                     <td class="px-4 py-2 text-sm">{{ $log['env'] }}</td>
+
                     <td class="px-4 py-2 text-sm font-semibold
                         @class([
                             'text-red-600' => strtolower($log['level']) === 'error',
@@ -203,22 +195,21 @@
                     </td>
 
                     <td class="px-4 py-2 text-sm text-gray-700">
+
                         @if ($isMultiline)
                             <div class="max-w-[450px]">
                                 <div class="text-gray-700 whitespace-pre-wrap break-words line-clamp-5">
                                     {{ Str::limit($msg, 240) }}
                                 </div>
-
-                                <button
-                                    class="text-primary-600 hover:text-primary-800 text-xs mt-1 underline"
-                                    wire:click="abrirLogCompleto('{{ base64_encode($msg) }}')"
-                                >
+                                <button class="text-primary-600 hover:text-primary-800 text-xs mt-1 underline"
+                                        wire:click="abrirLogCompleto('{{ base64_encode($msg) }}')">
                                     Ver completo →
                                 </button>
                             </div>
                         @else
                             {{ $msg }}
                         @endif
+
                     </td>
                 </tr>
 
@@ -231,6 +222,7 @@
             @endforelse
             </tbody>
         </table>
+
     </div>
 
 
