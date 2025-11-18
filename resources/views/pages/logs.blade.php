@@ -56,6 +56,7 @@
         </x-filament-panels::form>
     </x-filament::section>
 
+
     {{-- Paginação superior --}}
     <div class="flex justify-between items-center mt-6 mb-3">
         <div class="text-sm text-gray-500">
@@ -66,6 +67,7 @@
             {{ $this->paginatedLogs->links() }}
         </div>
     </div>
+
 
     {{-- Tabela --}}
     <div class="overflow-x-auto bg-white rounded-lg shadow">
@@ -81,6 +83,13 @@
 
             <tbody class="bg-white divide-y divide-gray-200">
             @forelse($this->paginatedLogs as $log)
+
+                @php
+                    $linhas = explode("\n", $log['message']);
+                    $primeira = $linhas[0] ?? '';
+                    $temMais = count($linhas) > 1;
+                @endphp
+
                 <tr>
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['datetime'] }}</td>
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['env'] }}</td>
@@ -97,30 +106,32 @@
                         {{ strtoupper($log['level']) }}
                     </td>
 
-                    {{-- Mensagem com botão para modal --}}
-                    <td class="px-4 py-2 text-sm text-gray-700">
+                    <td class="px-4 py-2 text-sm text-gray-700 align-top">
 
-                        @php
-                            $hasMore = str_contains($log['message'], "\n");
-                            $primeiraLinha = strtok($log['message'], "\n");
-                        @endphp
+                        {{-- Caixa com limite de altura e scroll --}}
+                        <div class="max-h-[150px] overflow-y-auto whitespace-pre-wrap bg-gray-900 text-gray-100 p-2 rounded">
 
-                        @if(!$hasMore)
-                            <span>{{ $log['message'] }}</span>
-                        @else
-                            <div class="flex items-center space-x-3 max-w-[350px]">
-                                <span class="truncate block">
-                                    {{ Str::limit($primeiraLinha, 120) }}
-                                </span>
+                            {{-- Apenas a primeira linha --}}
+                            {{ $primeira }}
 
-                                <x-filament::button
-                                    color="primary"
-                                    size="xs"
-                                    wire:click="abrirModal({{ json_encode($log) }})"
-                                >
-                                    Ver mais
-                                </x-filament::button>
-                            </div>
+                            {{-- Indicador de conteúdo adicional --}}
+                            @if($temMais)
+                                <div class="mt-2 text-center text-xs text-gray-300">
+                                    (... mais linhas)
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Botão para modal --}}
+                        @if($temMais)
+                            <x-filament::button
+                                color="primary"
+                                size="xs"
+                                class="mt-2"
+                                wire:click="abrirModal({{ json_encode($log) }})"
+                            >
+                                Ver mais
+                            </x-filament::button>
                         @endif
 
                     </td>
