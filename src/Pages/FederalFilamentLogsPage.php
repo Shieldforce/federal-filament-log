@@ -29,29 +29,50 @@ class FederalFilamentLogsPage extends Page implements HasForms
     protected static ?string $navigationLabel     = 'Logs do Sistema';
     protected static ?string $slug                = 'logs';
     protected static ?string $title               = 'Logs do Sistema';
-    public ?string           $search              = null;
-    public ?string           $tipo                = null;
-    public ?string           $data                = null;
-    public array             $result              = [];
-    protected int            $perPage             = 20;
-    public bool              $modalLog            = false;
-    public string            $modalContent        = '';
-    public string            $modalContentColored = '';
+
+    public ?string $search = null;
+    public ?string $tipo   = null;
+    public ?string $data   = null;
+
+    public array  $result = [];
+    protected int $perPage = 20;
+
+    // → dados do modal
+    public string $modalContent        = '';
+    public string $modalContentColored = '';
+
+    // →
 
     public function abrirLogCompleto($mensagemBase64)
     {
         $raw = base64_decode($mensagemBase64);
 
-        $decoded = json_decode($raw, true);
-        if (json_last_error() === JSON_ERROR_NONE) {
+        // Se for JSON → formata bonito
+        if ($this->pareceJson($raw)) {
             $raw = json_encode(
-                $decoded,
+                json_decode($raw, true),
                 JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
             );
         }
 
-        $colored = $raw;
+        // highlight simples (opcional, depois posso te mandar highlight PRO)
+        $colored = $this->colorir($raw);
 
+        $this->modalContent        = $raw;
+        $this->modalContentColored = $colored;
+
+        // IMPORTANTE → dispara modal do Filament
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'modal-log']);
+    }
+
+    private function pareceJson(string $texto): bool
+    {
+        $trim = trim($texto);
+        return Str::startsWith($trim, '{') || Str::startsWith($trim, '[');
+    }
+
+    private function colorir(string $raw): string
+    {
         $patterns = [
             '/\bERROR\b/i'    => '<span class="text-red-400 font-bold">ERROR</span>',
             '/\bCRITICAL\b/i' => '<span class="text-red-600 font-bold">CRITICAL</span>',
@@ -64,14 +85,10 @@ class FederalFilamentLogsPage extends Page implements HasForms
         ];
 
         foreach ($patterns as $pattern => $replace) {
-            $colored = preg_replace($pattern, $replace, $colored);
+            $raw = preg_replace($pattern, $replace, $raw);
         }
 
-        $this->modalContentColored = $colored;
-        $this->modalLog = true;
-
-        // ⬇️ AQUI! OBRIGATÓRIO PARA O MODAL ABRIR
-        $this->dispatch('open-modal', id: 'modal-log');
+        return $raw;
     }
 
     protected function getFormSchema(): array
@@ -103,7 +120,6 @@ class FederalFilamentLogsPage extends Page implements HasForms
         ];
     }
 
-
     public function mount(): void
     {
         $this->form->fill([
@@ -115,36 +131,36 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $this->filtrar();
     }
 
-
     public function updated($propertyName)
     {
         $this->resetPage();
         $this->filtrar();
     }
 
-
     public function filtrar()
     {
         $logs = $this->getData();
 
         if ($this->search) {
-            $logs = array_filter($logs, fn($item) => Str::contains(strtolower($item['message']), strtolower($this->search))
+            $logs = array_filter($logs, fn($item) =>
+            Str::contains(strtolower($item['message']), strtolower($this->search))
             );
         }
 
         if ($this->tipo) {
-            $logs = array_filter($logs, fn($item) => strtolower($item['level']) === strtolower($this->tipo)
+            $logs = array_filter($logs, fn($item) =>
+                strtolower($item['level']) === strtolower($this->tipo)
             );
         }
 
         if ($this->data) {
-            $logs = array_filter($logs, fn($item) => Str::startsWith($item['datetime'], $this->data)
+            $logs = array_filter($logs, fn($item) =>
+            Str::startsWith($item['datetime'], $this->data)
             );
         }
 
         $this->result = array_values($logs);
     }
-
 
     public function getPaginatedLogsProperty()
     {
@@ -163,7 +179,6 @@ class FederalFilamentLogsPage extends Page implements HasForms
             ]
         );
     }
-
 
     protected function getData(): array
     {
@@ -197,7 +212,6 @@ class FederalFilamentLogsPage extends Page implements HasForms
         return array_reverse($logs);
     }
 
-
     public function limparLogs(): void
     {
         foreach (glob(storage_path('logs/*.log')) as $file) {
@@ -211,7 +225,6 @@ class FederalFilamentLogsPage extends Page implements HasForms
             ->title('Logs limpos com sucesso!')
             ->send();
     }
-
 
     public static function getNavigationGroup(): ?string
     {
