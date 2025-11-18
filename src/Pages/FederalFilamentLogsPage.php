@@ -128,7 +128,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
         );
     }
 
-    protected function getData(): array
+    /*protected function getData(): array
     {
         $logFile = storage_path('logs/laravel.log');
 
@@ -157,7 +157,61 @@ class FederalFilamentLogsPage extends Page implements HasForms
         }
 
         return array_reverse($logs); // mostra os mais recentes primeiro
+    }*/
+
+    protected function getData(): array
+    {
+        $logFile = storage_path('logs/laravel.log');
+
+        if (!File::exists($logFile)) {
+            return [[
+                'datetime' => now()->toDateTimeString(),
+                'env'      => app()->environment(),
+                'level'    => 'INFO',
+                'message'  => 'Arquivo de log vazio ou inexistente.',
+            ]];
+        }
+
+        $content = File::get($logFile);
+        $lines   = explode("\n", $content);
+
+        $logs = [];
+        $current = null;
+
+        foreach ($lines as $line) {
+
+            // Se a linha começa um novo log
+            if (preg_match('/^\[(.*?)\]\s+(\w+)\.(\w+):\s+(.*)/', $line, $matches)) {
+
+                // Se já existe um log sendo montado, salva ele
+                if ($current) {
+                    $logs[] = $current;
+                }
+
+                // Novo log
+                $current = [
+                    'datetime' => $matches[1],
+                    'env'      => $matches[2],
+                    'level'    => strtoupper($matches[3]),
+                    'message'  => $matches[4],
+                ];
+            } else {
+                // Linha adicional do mesmo log (stack trace, array, etc)
+                if ($current) {
+                    $current['message'] .= "\n" . $line;
+                }
+            }
+        }
+
+        // Salva o último
+        if ($current) {
+            $logs[] = $current;
+        }
+
+        // Logs mais recentes primeiro
+        return array_reverse($logs);
     }
+
 
     public function limparLogs(): void
     {

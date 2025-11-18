@@ -70,7 +70,10 @@
                             ">
                         <pre class="whitespace-pre-wrap">{{ strtoupper($log['level']) }}</pre>
                     </td>
-                    <td class="px-4 py-2 text-sm text-gray-700">{{ $log['message'] }}</td>
+                    {{--<td class="px-4 py-2 text-sm text-gray-700">{{ $log['message'] }}</td>--}}
+                    <td class="px-4 py-2 text-sm text-gray-700 whitespace-pre-wrap">
+                        <pre class="whitespace-pre-wrap text-gray-700 text-sm">{{ $log['message'] }}</pre>
+                    </td>
                 </tr>
             @empty
                 <tr>
