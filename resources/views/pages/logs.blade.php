@@ -1,5 +1,6 @@
 <x-filament::page>
 
+    {{-- ======================= MODAL DO TERMINAL ======================= --}}
     <x-filament::modal
         id="modal-log"
         width="7xl"
@@ -7,7 +8,7 @@
         icon="heroicon-o-command-line"
         close-button
     >
-        <div class="p-0">
+        <div class="p-2">
 
             {{-- Barra de ações --}}
             <div class="flex justify-between mb-3 px-2">
@@ -44,42 +45,46 @@
                 </div>
             </div>
 
+            {{-- Terminal --}}
             <div id="terminal-container"
                  class="bg-black text-green-400 p-4 rounded-lg shadow-2xl max-h-[75vh] overflow-y-auto font-mono text-sm border border-green-500/40"
-                 style="box-shadow: 0 0 10px rgba(0,255,100,0.4), inset 0 0 20px rgba(0,255,100,0.1);">
+                 style="box-shadow: 0 0 12px rgba(0,255,100,0.35), inset 0 0 15px rgba(0,255,100,0.15);">
 
-                {{-- Cabeçalho do terminal --}}
-                <div class="flex items-center space-x-2 mb-4">
+                {{-- Cabeçalho estilizado --}}
+                <div class="flex items-center space-x-2 mb-4 select-none">
                     <div class="w-3 h-3 rounded-full bg-red-500"></div>
                     <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
                     <div class="w-3 h-3 rounded-full bg-green-500"></div>
 
                     <span class="ml-3 text-green-400 tracking-widest font-bold">
-                    ~/logs/system.log
-                </span>
+                        ~/logs/system.log
+                    </span>
                 </div>
 
-                {{-- Conteúdo com linhas numeradas --}}
-                <pre id="terminal-content"
-                     class="whitespace-pre-wrap break-words leading-relaxed text-green-400">
-            </pre>
+                {{-- Conteúdo real --}}
+                <div id="terminal-content" class="whitespace-pre-wrap break-words leading-relaxed text-green-400"></div>
 
             </div>
         </div>
 
+        {{-- ======================= SCRIPTS ======================= --}}
         <script>
             const rawColored = @json($modalContentColored ?? '');
 
             function renderTerminal() {
                 const container = document.getElementById('terminal-content')
 
-                const lines = rawColored.split('\n').map((line, index) => {
-                    return `
-                <div class="flex">
-                    <span class="text-gray-600 select-none w-12 text-right pr-3">${index + 1}</span>
-                    <span class="flex-1">${line}</span>
-                </div>`
-                }).join('')
+                if (!rawColored) {
+                    container.innerHTML = "<span class='text-gray-500'>Nenhum conteúdo encontrado.</span>"
+                    return
+                }
+
+                const lines = rawColored.split('\n').map((line, i) => `
+                    <div class="flex items-start">
+                        <span class="text-gray-600 select-none w-12 text-right pr-3">${i + 1}</span>
+                        <span class="flex-1">${line}</span>
+                    </div>
+                `).join('')
 
                 container.innerHTML = lines + `<span class="blinking-cursor">█</span>`
             }
@@ -108,30 +113,21 @@
 
             document.addEventListener('DOMContentLoaded', renderTerminal)
             document.addEventListener('livewire:navigated', renderTerminal)
-            document.addEventListener('open-modal', renderTerminal)
         </script>
 
         <style>
             .blinking-cursor {
                 animation: blink 0.9s step-end infinite;
                 display: inline-block;
-                margin-left: 4px;
             }
-
             @keyframes blink {
-                from, to {
-                    opacity: 1;
-                }
-                50% {
-                    opacity: 0;
-                }
+                50% { opacity: 0; }
             }
         </style>
 
     </x-filament::modal>
 
-
-    {{-- Filtros --}}
+    {{-- ======================= FILTROS ======================= --}}
     <x-filament::section>
         <x-filament-panels::form wire:submit="filtrar">
             {{ $this->form }}
@@ -141,7 +137,7 @@
                     color="primary"
                     icon="heroicon-o-funnel"
                     type="submit"
-                    style="width: 20%; margin-right:20px;"
+                    class="w-40"
                 >
                     Filtrar
                 </x-filament::button>
@@ -151,7 +147,7 @@
                     icon="heroicon-o-trash"
                     wire:click="limparLogs"
                     type="button"
-                    style="width: 20%;"
+                    class="w-40"
                 >
                     Limpar Logs
                 </x-filament::button>
@@ -160,7 +156,7 @@
     </x-filament::section>
 
 
-    {{-- Paginação superior --}}
+    {{-- ======================= PAGINAÇÃO SUPERIOR ======================= --}}
     <div class="flex justify-between items-center mt-6 mb-3">
         <div class="text-sm text-gray-500">
             {{ $this->paginatedLogs->firstItem() }} até {{ $this->paginatedLogs->lastItem() }}
@@ -170,7 +166,7 @@
     </div>
 
 
-    {{-- Tabela --}}
+    {{-- ======================= TABELA ======================= --}}
     <div class="overflow-x-auto bg-white rounded-lg shadow">
 
         <table class="min-w-full divide-y divide-gray-200">
@@ -187,48 +183,42 @@
             @forelse($this->paginatedLogs as $log)
 
                 @php
-                    $message = $log['message'];
-                    $isMultiline = str_contains($message, "\n")
-                        || strlen($message) > 200
-                        || Str::startsWith(trim($message), ['[', '{']);
+                    $msg = $log['message'];
+                    $isMultiline = strlen($msg) > 200 || str_contains($msg, "\n");
                 @endphp
 
                 <tr>
                     <td class="px-4 py-2 text-sm">{{ $log['datetime'] }}</td>
                     <td class="px-4 py-2 text-sm">{{ $log['env'] }}</td>
-
                     <td class="px-4 py-2 text-sm font-semibold
-                        @switch(strtolower($log['level']))
-                            @case('error') text-red-600 @break
-                            @case('critical') text-red-700 @break
-                            @case('warning') text-yellow-600 @break
-                            @case('info') text-green-600 @break
-                            @case('debug') text-blue-600 @break
-                            @default text-gray-700
-                        @endswitch
+                        @class([
+                            'text-red-600' => strtolower($log['level']) === 'error',
+                            'text-red-700' => strtolower($log['level']) === 'critical',
+                            'text-yellow-600' => strtolower($log['level']) === 'warning',
+                            'text-green-600' => strtolower($log['level']) === 'info',
+                            'text-blue-600' => strtolower($log['level']) === 'debug',
+                        ])
                     ">
                         {{ strtoupper($log['level']) }}
                     </td>
 
                     <td class="px-4 py-2 text-sm text-gray-700">
-
                         @if ($isMultiline)
                             <div class="max-w-[450px]">
                                 <div class="text-gray-700 whitespace-pre-wrap break-words line-clamp-5">
-                                    {{ Str::limit($message, 240) }}
+                                    {{ Str::limit($msg, 240) }}
                                 </div>
 
                                 <button
                                     class="text-primary-600 hover:text-primary-800 text-xs mt-1 underline"
-                                    wire:click="abrirLogCompleto('{{ base64_encode($message) }}')"
+                                    wire:click="abrirLogCompleto('{{ base64_encode($msg) }}')"
                                 >
                                     Ver completo →
                                 </button>
                             </div>
                         @else
-                            {{ $message }}
+                            {{ $msg }}
                         @endif
-
                     </td>
                 </tr>
 
@@ -244,7 +234,7 @@
     </div>
 
 
-    {{-- Paginação inferior --}}
+    {{-- ======================= PAGINAÇÃO INFERIOR ======================= --}}
     <div class="flex justify-between items-center mt-6 mb-2">
         <div class="text-sm text-gray-500">
             {{ $this->paginatedLogs->firstItem() }} até {{ $this->paginatedLogs->lastItem() }}
