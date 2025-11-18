@@ -22,26 +22,58 @@ class FederalFilamentLogsPage extends Page implements HasForms
     use InteractsWithForms;
     use WithPagination;
 
-    protected static string $view = 'federal-filament-log::pages.logs';
-    protected static ?string $navigationIcon  = 'heroicon-o-list-bullet';
-    protected static ?string $navigationGroup = 'Logs';
-    protected static ?string $label           = 'Log';
-    protected static ?string $navigationLabel = 'Logs do Sistema';
-    protected static ?string $slug            = 'logs';
-    protected static ?string $title           = 'Logs do Sistema';
-
-    public ?string $search = null;
-    public ?string $tipo   = null;
-    public ?string $data   = null;
-
-    public array $result = [];
-    protected int $perPage = 20;
-
-    public bool $modalLog = false;
-    public string $modalContent = '';
-
+    protected static string  $view                = 'federal-filament-log::pages.logs';
+    protected static ?string $navigationIcon      = 'heroicon-o-list-bullet';
+    protected static ?string $navigationGroup     = 'Logs';
+    protected static ?string $label               = 'Log';
+    protected static ?string $navigationLabel     = 'Logs do Sistema';
+    protected static ?string $slug                = 'logs';
+    protected static ?string $title               = 'Logs do Sistema';
+    public ?string           $search              = null;
+    public ?string           $tipo                = null;
+    public ?string           $data                = null;
+    public array             $result              = [];
+    protected int            $perPage             = 20;
+    public bool              $modalLog            = false;
+    public string            $modalContent        = '';
+    public string            $modalContentColored = '';
 
     public function abrirLogCompleto($mensagemBase64)
+    {
+        $raw = base64_decode($mensagemBase64);
+
+        // Se for JSON, formatar
+        $decoded = json_decode($raw, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $raw = json_encode(
+                $decoded,
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            );
+        }
+
+        // Colorização simples por termos chave
+        $colored = $raw;
+
+        $patterns = [
+            '/\bERROR\b/i'    => '<span class="text-red-400 font-bold">ERROR</span>',
+            '/\bCRITICAL\b/i' => '<span class="text-red-600 font-bold">CRITICAL</span>',
+            '/\bWARNING\b/i'  => '<span class="text-yellow-400 font-bold">WARNING</span>',
+            '/\bINFO\b/i'     => '<span class="text-blue-400 font-bold">INFO</span>',
+            '/\bDEBUG\b/i'    => '<span class="text-gray-400 font-bold">DEBUG</span>',
+            '/\bSQL\b/i'      => '<span class="text-purple-400 font-bold">SQL</span>',
+            '/Exception:/i'   => '<span class="text-red-300 font-bold">Exception:</span>',
+            '/Stack trace:/i' => '<span class="text-orange-400 font-bold">Stack trace:</span>',
+        ];
+
+        foreach ($patterns as $pattern => $replace) {
+            $colored = preg_replace($pattern, $replace, $colored);
+        }
+
+        $this->modalContentColored = $colored;
+        $this->modalLog            = true;
+    }
+
+    /*public function abrirLogCompleto($mensagemBase64)
     {
         $conteudo = base64_decode($mensagemBase64);
 
@@ -58,7 +90,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
         // MUITO IMPORTANTE → Somente assim o modal abre!
         $this->dispatch('open-modal', id: 'modal-log');
-    }
+    }*/
 
 
     protected function getFormSchema(): array
@@ -115,20 +147,17 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $logs = $this->getData();
 
         if ($this->search) {
-            $logs = array_filter($logs, fn($item) =>
-            Str::contains(strtolower($item['message']), strtolower($this->search))
+            $logs = array_filter($logs, fn($item) => Str::contains(strtolower($item['message']), strtolower($this->search))
             );
         }
 
         if ($this->tipo) {
-            $logs = array_filter($logs, fn($item) =>
-                strtolower($item['level']) === strtolower($this->tipo)
+            $logs = array_filter($logs, fn($item) => strtolower($item['level']) === strtolower($this->tipo)
             );
         }
 
         if ($this->data) {
-            $logs = array_filter($logs, fn($item) =>
-            Str::startsWith($item['datetime'], $this->data)
+            $logs = array_filter($logs, fn($item) => Str::startsWith($item['datetime'], $this->data)
             );
         }
 
@@ -148,7 +177,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
             $this->perPage,
             $page,
             [
-                'path' => request()->url(),
+                'path'  => request()->url(),
                 'query' => request()->query(),
             ]
         );

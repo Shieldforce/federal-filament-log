@@ -1,7 +1,7 @@
 <x-filament::page>
 
     {{-- Modal para visualizar log completo --}}
-    <x-filament::modal
+    {{--<x-filament::modal
         id="modal-log"
         width="4xl"
         heading="Log completo"
@@ -10,6 +10,39 @@
     >
         <div class="bg-gray-900 text-green-400 p-4 rounded-lg max-h-[70vh] overflow-y-auto text-sm font-mono">
             <pre class="whitespace-pre-wrap break-words">{!! $modalContent !!}</pre>
+        </div>
+    </x-filament::modal>--}}
+
+    <x-filament::modal
+        id="modal-log"
+        width="5xl"
+        close-button
+        sticky-header
+    >
+        <x-slot name="heading">
+            <div class="flex items-center space-x-2">
+                <span class="text-green-400 font-mono text-lg">Terminal de Logs</span>
+            </div>
+        </x-slot>
+
+        <div class="
+        bg-black
+        text-green-400
+        p-4
+        rounded-xl
+        shadow-2xl
+        border
+        border-green-600/40
+        font-mono text-sm
+        max-h-[75vh]
+        overflow-y-auto
+        relative
+    ">
+            {{-- Glow neon nas bordas --}}
+            <div class="absolute inset-0 rounded-xl border border-green-500/20 pointer-events-none animate-pulse"></div>
+
+            {{-- Conteúdo colorido --}}
+            <pre class="whitespace-pre-wrap break-words leading-relaxed">{!! $modalContentColored !!}</pre>
         </div>
     </x-filament::modal>
 
