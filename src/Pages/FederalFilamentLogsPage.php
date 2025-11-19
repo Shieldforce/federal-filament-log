@@ -62,12 +62,12 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
     private function colorir(string $raw): string
     {
-        // Escape de caracteres especiais (mas não interfere nos spans depois)
-        $raw = htmlspecialchars($raw, ENT_QUOTES, 'UTF-8');
+        // Mantém caracteres normais
+        // Se quiser, pode escapar só < e > reais do log
+        $raw = str_replace(['<', '>'], ['&lt;', '&gt;'], $raw);
 
-        // Destaques de cores estilo terminal
+        // Destaques de cores
         $patterns = [
-            // Níveis de log
             '/\bEMERGENCY\b/i' => '<span class="text-red-600 font-bold">EMERGENCY</span>',
             '/\bALERT\b/i'     => '<span class="text-red-500 font-bold">ALERT</span>',
             '/\bCRITICAL\b/i'  => '<span class="text-red-500 font-bold">CRITICAL</span>',
@@ -76,27 +76,20 @@ class FederalFilamentLogsPage extends Page implements HasForms
             '/\bNOTICE\b/i'    => '<span class="text-cyan-400 font-bold">NOTICE</span>',
             '/\bINFO\b/i'      => '<span class="text-blue-400 font-bold">INFO</span>',
             '/\bDEBUG\b/i'     => '<span class="text-gray-400 font-bold">DEBUG</span>',
-
-            // Estruturas e valores
             '/array \(/i'      => '<span class="text-purple-400 font-bold">array(</span>',
             '/null/i'          => '<span class="text-gray-500 font-bold">null</span>',
             '/true/i'          => '<span class="text-green-400 font-bold">true</span>',
             '/false/i'         => '<span class="text-red-400 font-bold">false</span>',
-
-            // Strings entre aspas
             '/"([^"]*)"/'      => '<span class="text-green-300">"$1"</span>',
             "/'([^']*)'/"      => '<span class="text-green-300">\'$1\'</span>',
         ];
 
-        // Aplica os highlights
         foreach ($patterns as $pattern => $replace) {
             $raw = preg_replace($pattern, $replace, $raw);
         }
 
-        // Quebras de linha
         return nl2br($raw);
     }
-
 
     protected function getFormSchema(): array
     {
