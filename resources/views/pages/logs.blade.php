@@ -32,13 +32,13 @@
 
     {{-- TABELA --}}
     <div class="overflow-x-auto bg-white rounded-lg shadow">
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="min-w-full divide-y divide-gray-200 table-fixed">
 
             <thead class="bg-gray-50">
             <tr>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Data/Hora</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Ambiente</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Tipo</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 w-32">Data/Hora</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 w-24">Ambiente</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 w-24">Tipo</th>
                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Mensagem</th>
             </tr>
             </thead>
@@ -56,9 +56,9 @@
                         {{ strtoupper($log['level']) }}
                     </td>
 
-                    <td class="px-4 py-2 text-sm text-gray-700">
+                    <td class="px-4 py-2 text-sm text-gray-700 break-words">
 
-                        <div class="flex flex-col max-w-[480px]">
+                        <div class="flex flex-col">
 
                             {{-- TRUNCADO --}}
                             <span class="whitespace-pre-wrap break-words">
@@ -104,18 +104,16 @@
     </div>
 
 
-    {{-- MODAL --}}
+    {{-- MODAL CORRIGIDO --}}
     <x-filament::modal
-        id="modal-log"
+        name="modal-log"
         width="4xl"
         icon="heroicon-o-eye"
         heading="Log completo"
-        :visible="false"
-        wire:key="modal-log"
     >
         <div class="bg-gray-900 text-gray-200 p-4 rounded-lg max-h-[70vh] overflow-y-auto text-sm">
             <pre class="whitespace-pre-wrap break-words font-mono">
-                {!! $this->modalContentColored !!}
+{!! $this->modalContentColored !!}
             </pre>
         </div>
     </x-filament::modal>

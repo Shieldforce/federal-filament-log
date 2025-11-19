@@ -19,74 +19,43 @@ use Shieldforce\FederalFilamentLog\Services\Permissions\CanPageTrait;
 class FederalFilamentLogsPage extends Page implements HasForms
 {
     use CanPageTrait;
+
     use InteractsWithForms;
     use WithPagination;
 
-    protected static string  $view                = 'federal-filament-log::pages.logs';
-    protected static ?string $navigationIcon      = 'heroicon-o-list-bullet';
-    protected static ?string $navigationGroup     = 'Logs';
-    protected static ?string $label               = 'Log';
-    protected static ?string $navigationLabel     = 'Logs do Sistema';
-    protected static ?string $slug                = 'logs';
-    protected static ?string $title               = 'Logs do Sistema';
+    protected static string  $view            = 'federal-filament-log::pages.logs';
+    protected static ?string $navigationIcon  = 'heroicon-o-list-bullet';
+    protected static ?string $navigationGroup = 'Logs';
+    protected static ?string $label           = 'Log';
+    protected static ?string $navigationLabel = 'Logs do Sistema';
+    protected static ?string $slug            = 'logs';
+    protected static ?string $title           = 'Logs do Sistema';
+    public ?string           $search          = null;
+    public ?string           $tipo            = null;
+    public ?string           $data            = null;
+    public array             $result          = [];
+    protected int            $perPage         = 20; // Quantidade por página
+    // Adicione estas propriedades na classe
+    public ?string $modalContent        = null;
+    public ?string $modalContentColored = null;
+    public bool    $modalLog            = false;
 
-    public ?string $search = null;
-    public ?string $tipo   = null;
-    public ?string $data   = null;
-
-    public array  $result = [];
-    protected int $perPage = 20;
-
-    public string $modalContent        = '';
-    public string $modalContentColored = '';
-
-    public function abrirLogCompleto($mensagemBase64)
+    public function abrirLogCompleto(string $mensagemBase64)
     {
-        $raw = base64_decode($mensagemBase64);
+        $mensagem                  = base64_decode($mensagemBase64);
+        $this->modalContentColored = nl2br(e($mensagem));
 
-        if ($this->pareceJson($raw)) {
-            $raw = json_encode(
-                json_decode($raw, true),
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-            );
-        }
-
-        $this->modalContent        = $raw;
-        $this->modalContentColored = $this->colorir($raw);
-
-        // Livewire 3 - correto!
-        $this->dispatch('open-modal', id: 'modal-log');
-    }
-
-    private function pareceJson(string $texto): bool
-    {
-        $trim = trim($texto);
-        return Str::startsWith($trim, '{') || Str::startsWith($trim, '[');
-    }
-
-    private function colorir(string $raw): string
-    {
-        $patterns = [
-            '/\bERROR\b/i'    => '<span class="text-red-400 font-bold">ERROR</span>',
-            '/\bCRITICAL\b/i' => '<span class="text-red-600 font-bold">CRITICAL</span>',
-            '/\bWARNING\b/i'  => '<span class="text-yellow-400 font-bold">WARNING</span>',
-            '/\bINFO\b/i'     => '<span class="text-blue-400 font-bold">INFO</span>',
-            '/\bDEBUG\b/i'    => '<span class="text-gray-400 font-bold">DEBUG</span>',
-            '/array \(/i'     => '<span class="text-purple-300 font-bold">array (</span>',
-        ];
-
-        foreach ($patterns as $pattern => $replace) {
-            $raw = preg_replace($pattern, $replace, $raw);
-        }
-
-        return $raw;
+        $this->dispatchBrowserEvent('open-modal', ['id' => 'modal-log']);
     }
 
     protected function getFormSchema(): array
     {
         return [
             Grid::make(3)->schema([
-                TextInput::make('search')->label('Palavra-chave'),
+                TextInput::make('search')
+                    ->label('Palavra-chave')
+                    ->placeholder('Buscar mensagem...'),
+
                 Select::make('tipo')
                     ->label('Tipo/Nível')
                     ->options([
@@ -99,19 +68,31 @@ class FederalFilamentLogsPage extends Page implements HasForms
                         'notice'    => 'NOTICE',
                         'info'      => 'INFO',
                         'debug'     => 'DEBUG',
-                    ]),
-                DatePicker::make('data')->label('Data')->format('Y-m-d'),
+                    ])
+                    ->placeholder('Todos'),
+
+                DatePicker::make('data')
+                    ->label('Data')
+                    ->format('Y-m-d')
+                    ->placeholder('YYYY-MM-DD'),
             ]),
         ];
     }
 
     public function mount(): void
     {
+        $this->form->fill([
+            'search' => $this->search,
+            'tipo'   => $this->tipo,
+            'data'   => $this->data,
+        ]);
+
         $this->filtrar();
     }
 
-    public function updated()
+    public function updated($propertyName)
     {
+        // Reinicia a paginação ao mudar filtro
         $this->resetPage();
         $this->filtrar();
     }
@@ -121,26 +102,26 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $logs = $this->getData();
 
         if ($this->search) {
-            $logs = array_filter($logs, fn($item) =>
-            Str::contains(strtolower($item['message']), strtolower($this->search))
+            $logs = array_filter($logs, fn($item) => Str::contains(strtolower($item['message']), strtolower($this->search))
             );
         }
 
         if ($this->tipo) {
-            $logs = array_filter($logs, fn($item) =>
-                strtolower($item['level']) === strtolower($this->tipo)
+            $logs = array_filter($logs, fn($item) => strtolower($item['level']) === strtolower($this->tipo)
             );
         }
 
         if ($this->data) {
-            $logs = array_filter($logs, fn($item) =>
-            Str::startsWith($item['datetime'], $this->data)
+            $logs = array_filter($logs, fn($item) => Str::startsWith($item['datetime'], $this->data)
             );
         }
 
         $this->result = array_values($logs);
     }
 
+    /**
+     * Retorna logs paginados, mantendo filtros
+     */
     public function getPaginatedLogsProperty()
     {
         $page   = $this->getPage();
@@ -152,57 +133,39 @@ class FederalFilamentLogsPage extends Page implements HasForms
             count($this->result),
             $this->perPage,
             $page,
-            ['path' => request()->url()]
+            ['path' => request()->url(), 'query' => request()->query()]
         );
     }
 
-    /**
-     * AQUI ESTÁ O PARSER QUE FALTAVA!
-     */
     protected function getData(): array
     {
         $logFile = storage_path('logs/laravel.log');
 
         if (!File::exists($logFile)) {
-            return [];
+            return [[
+                'datetime' => now()->toDateTimeString(),
+                'env'      => app()->environment(),
+                'level'    => 'INFO',
+                'message'  => 'Arquivo de log vazio ou inexistente.',
+            ]];
         }
 
         $content = File::get($logFile);
         $lines   = explode(PHP_EOL, $content);
-
-        $logs  = [];
-        $entry = null;
+        $logs    = [];
 
         foreach ($lines as $line) {
-
-            // Nova entrada de log
-            if (preg_match('/^\[(.*?)\] (\w+)\.(\w+): (.*)$/', $line, $m)) {
-
-                // salva a anterior
-                if ($entry) {
-                    $logs[] = $entry;
-                }
-
-                // cria nova entrada
-                $entry = [
-                    'datetime' => $m[1],
-                    'env'      => $m[2],
-                    'level'    => $m[3],
-                    'message'  => $m[4],
+            if (preg_match('/\[(.*?)\] (\w+)\.(\w+): (.*)/', $line, $matches)) {
+                $logs[] = [
+                    'datetime' => $matches[1],
+                    'env'      => $matches[2],
+                    'level'    => strtoupper($matches[3]),
+                    'message'  => $matches[4],
                 ];
-
-            } else if ($entry) {
-                // linha extra de mensagem (multilinha)
-                $entry['message'] .= "\n" . $line;
             }
         }
 
-        // última pendente
-        if ($entry) {
-            $logs[] = $entry;
-        }
-
-        return array_reverse($logs);
+        return array_reverse($logs); // mostra os mais recentes primeiro
     }
 
     public function limparLogs(): void
@@ -211,11 +174,18 @@ class FederalFilamentLogsPage extends Page implements HasForms
             file_put_contents($file, '');
         }
 
+        // Recarrega os logs (mantendo a estrutura paginada)
         $this->filtrar();
 
         Notification::make()
             ->success()
             ->title('Logs limpos com sucesso!')
+            ->seconds(5)
             ->send();
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return config()->get('federal-filament-log.sidebar_group');
     }
 }
