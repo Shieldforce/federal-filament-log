@@ -17,7 +17,6 @@
         </x-filament-panels::form>
     </x-filament::section>
 
-
     {{-- PAGINAÇÃO SUPERIOR --}}
     <div class="flex justify-between items-center mt-6 mb-3">
         <div class="text-sm text-gray-500">
@@ -29,41 +28,30 @@
         </div>
     </div>
 
-
     {{-- TABELA --}}
     <div class="overflow-x-auto bg-white rounded-lg shadow">
-        <table class="min-w-full divide-y divide-gray-200 table-fixed">
+        <table class="min-w-full divide-y divide-gray-200">
 
             <thead class="bg-gray-50">
             <tr>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 w-32">Data/Hora</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 w-24">Ambiente</th>
-                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600 w-24">Tipo</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Data/Hora</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Ambiente</th>
+                <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Tipo</th>
                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-600">Mensagem</th>
             </tr>
             </thead>
 
             <tbody class="bg-white divide-y divide-gray-200">
-
             @forelse($this->paginatedLogs as $log)
                 <tr>
-
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['datetime'] }}</td>
-
                     <td class="px-4 py-2 text-sm text-gray-700">{{ $log['env'] }}</td>
-
-                    <td class="px-4 py-2 text-sm font-semibold">
-                        {{ strtoupper($log['level']) }}
-                    </td>
-
+                    <td class="px-4 py-2 text-sm font-semibold">{{ strtoupper($log['level']) }}</td>
                     <td class="px-4 py-2 text-sm text-gray-700 break-words">
-
                         <div class="flex flex-col">
-
-                            {{-- TRUNCADO --}}
-                            <span class="whitespace-pre-wrap break-words">
-                                {!! nl2br(e(Str::limit($log['message'], 260))) !!}
-                            </span>
+                                <span class="whitespace-pre-wrap break-words">
+                                    {!! nl2br(e(Str::limit($log['message'], 260))) !!}
+                                </span>
 
                             @if(strlen($log['message']) > 260)
                                 <button
@@ -73,10 +61,8 @@
                                     Ver completo →
                                 </button>
                             @endif
-
                         </div>
                     </td>
-
                 </tr>
             @empty
                 <tr>
@@ -85,12 +71,9 @@
                     </td>
                 </tr>
             @endforelse
-
             </tbody>
-
         </table>
     </div>
-
 
     {{-- PAGINAÇÃO INFERIOR --}}
     <div class="flex justify-between items-center mt-6 mb-2">
@@ -103,18 +86,17 @@
         </div>
     </div>
 
-
-    {{-- MODAL CORRIGIDO --}}
+    {{-- MODAL ESTILO TERMINAL --}}
     <x-filament::modal
         id="modal-log"
-        width="4xl"
+        width="6xl"
         icon="heroicon-o-eye"
         heading="Log completo"
     >
-        <div class="bg-gray-900 text-gray-200 p-4 rounded-lg max-h-[70vh] overflow-y-auto text-sm">
-        <pre class="whitespace-pre-wrap break-words font-mono">
-            {!! $this->modalContentColored !!}
-        </pre>
+        <div class="bg-black text-gray-200 p-4 rounded-lg max-h-[80vh] overflow-y-auto text-sm">
+            <pre class="whitespace-pre-wrap break-words font-mono text-sm leading-5">
+                {!! $this->modalContentColored !!}
+            </pre>
         </div>
     </x-filament::modal>
 
