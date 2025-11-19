@@ -105,10 +105,17 @@
 
 
     {{-- MODAL --}}
-    <x-filament::modal id="modal-log" width="4xl" icon="heroicon-o-eye" heading="Log completo">
+    <x-filament::modal
+        id="modal-log"
+        width="4xl"
+        icon="heroicon-o-eye"
+        heading="Log completo"
+        :visible="false"
+        wire:key="modal-log"
+    >
         <div class="bg-gray-900 text-gray-200 p-4 rounded-lg max-h-[70vh] overflow-y-auto text-sm">
             <pre class="whitespace-pre-wrap break-words font-mono">
-                {!! $modalContentColored !!}
+                {!! $this->modalContentColored !!}
             </pre>
         </div>
     </x-filament::modal>

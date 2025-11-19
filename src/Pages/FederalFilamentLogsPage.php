@@ -54,7 +54,8 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $this->modalContent        = $raw;
         $this->modalContentColored = $this->colorir($raw);
 
-        $this->dispatch('open-modal', ['id' => 'modal-log']);
+        // Livewire 3 - correto!
+        $this->dispatch('open-modal', id: 'modal-log');
     }
 
     private function pareceJson(string $texto): bool
