@@ -54,7 +54,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $this->modalContent        = $raw;
         $this->modalContentColored = $this->colorir($raw);
 
-        $this->dispatchBrowserEvent('open-modal', ['id' => 'modal-log']);
+        $this->dispatch('open-modal', ['id' => 'modal-log']);
     }
 
     private function pareceJson(string $texto): bool
