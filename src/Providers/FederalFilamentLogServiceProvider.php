@@ -22,4 +22,3 @@ class FederalFilamentLogServiceProvider extends BaseProvider
         }
     }
 }
-
