@@ -93,11 +93,12 @@
         icon="heroicon-o-eye"
         heading="Log completo"
     >
-        <div class="bg-black text-gray-200 p-4 rounded-lg max-h-[80vh] overflow-y-auto text-sm">
+        <div class="bg-black text-green-400 p-4 rounded-lg max-h-[80vh] overflow-y-auto text-sm">
         <pre class="whitespace-pre-wrap break-words font-mono text-sm leading-5">
             {!! $this->modalContentColored !!}
         </pre>
         </div>
     </x-filament::modal>
+
 
 </x-filament::page>
