@@ -62,10 +62,10 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
     private function colorir(string $raw): string
     {
-        // Substituir caracteres especiais do log sem afetar tags HTML
+        // Escape de caracteres especiais (mas não interfere nos spans depois)
         $raw = htmlspecialchars($raw, ENT_QUOTES, 'UTF-8');
 
-        // Destaques de cores estilo terminal Matrix
+        // Destaques de cores estilo terminal
         $patterns = [
             // Níveis de log
             '/\bEMERGENCY\b/i' => '<span class="text-red-600 font-bold">EMERGENCY</span>',
@@ -93,9 +93,10 @@ class FederalFilamentLogsPage extends Page implements HasForms
             $raw = preg_replace($pattern, $replace, $raw);
         }
 
-        // Mantém quebras de linha e espaços
+        // Quebras de linha
         return nl2br($raw);
     }
+
 
     protected function getFormSchema(): array
     {
