@@ -112,9 +112,9 @@
         heading="Log completo"
     >
         <div class="bg-gray-900 text-gray-200 p-4 rounded-lg max-h-[70vh] overflow-y-auto text-sm">
-            <pre class="whitespace-pre-wrap break-words font-mono">
-                {!! $this->modalContentColored !!}
-            </pre>
+        <pre class="whitespace-pre-wrap break-words font-mono">
+            {!! $this->modalContentColored !!}
+        </pre>
         </div>
     </x-filament::modal>
 

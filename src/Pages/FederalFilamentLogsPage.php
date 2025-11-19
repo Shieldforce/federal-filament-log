@@ -63,12 +63,21 @@ class FederalFilamentLogsPage extends Page implements HasForms
     private function colorir(string $raw): string
     {
         $patterns = [
-            '/\bERROR\b/i'    => '<span class="text-red-400 font-bold">ERROR</span>',
-            '/\bCRITICAL\b/i' => '<span class="text-red-600 font-bold">CRITICAL</span>',
-            '/\bWARNING\b/i'  => '<span class="text-yellow-400 font-bold">WARNING</span>',
-            '/\bINFO\b/i'     => '<span class="text-blue-400 font-bold">INFO</span>',
-            '/\bDEBUG\b/i'    => '<span class="text-gray-400 font-bold">DEBUG</span>',
-            '/array \(/i'     => '<span class="text-purple-300 font-bold">array (</span>',
+            // Níveis
+            '/\bEMERGENCY\b/i' => '<span class="text-red-700 font-bold">EMERGENCY</span>',
+            '/\bALERT\b/i'     => '<span class="text-red-600 font-bold">ALERT</span>',
+            '/\bCRITICAL\b/i'  => '<span class="text-red-500 font-bold">CRITICAL</span>',
+            '/\bERROR\b/i'     => '<span class="text-red-400 font-bold">ERROR</span>',
+            '/\bWARNING\b/i'   => '<span class="text-yellow-400 font-bold">WARNING</span>',
+            '/\bNOTICE\b/i'    => '<span class="text-indigo-400 font-bold">NOTICE</span>',
+            '/\bINFO\b/i'      => '<span class="text-blue-400 font-bold">INFO</span>',
+            '/\bDEBUG\b/i'     => '<span class="text-gray-400 font-bold">DEBUG</span>',
+
+            // Estruturas comuns
+            '/array \(/i'      => '<span class="text-purple-300 font-bold">array (</span>',
+            '/null/i'          => '<span class="text-gray-500 font-bold">null</span>',
+            '/true/i'          => '<span class="text-green-400 font-bold">true</span>',
+            '/false/i'         => '<span class="text-red-400 font-bold">false</span>',
         ];
 
         foreach ($patterns as $pattern => $replace) {
