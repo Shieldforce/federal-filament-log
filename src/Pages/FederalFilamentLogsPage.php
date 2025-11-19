@@ -22,21 +22,21 @@ class FederalFilamentLogsPage extends Page implements HasForms
     use InteractsWithForms;
     use WithPagination;
 
-    protected static string $view = 'federal-filament-log::pages.logs';
-    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+    protected static string  $view            = 'federal-filament-log::pages.logs';
+    protected static ?string $navigationIcon  = 'heroicon-o-list-bullet';
     protected static ?string $navigationGroup = 'Logs';
-    protected static ?string $label = 'Log';
+    protected static ?string $label           = 'Log';
     protected static ?string $navigationLabel = 'Logs do Sistema';
-    protected static ?string $slug = 'logs';
-    protected static ?string $title = 'Logs do Sistema';
+    protected static ?string $slug            = 'logs';
+    protected static ?string $title           = 'Logs do Sistema';
 
-    public ?string $search = null;
-    public ?string $tipo = null;
-    public ?string $data = null;
-    public array $result = [];
-    protected int $perPage = 20;
-    public string $modalContent = '';
-    public string $modalContentColored = '';
+    public ?string $search              = null;
+    public ?string $tipo                = null;
+    public ?string $data                = null;
+    public array   $result              = [];
+    protected int  $perPage             = 20;
+    public string  $modalContent        = '';
+    public string  $modalContentColored = '';
 
     public function abrirLogCompleto($mensagemBase64)
     {
@@ -49,9 +49,9 @@ class FederalFilamentLogsPage extends Page implements HasForms
             );
         }
 
-        $this->modalContent = $raw;
+        $this->modalContent        = $raw;
         $this->modalContentColored = $this->colorir($raw);
-        $this->dispatch('open-modal', id: 'modal-log');
+        $this->dispatch('open-modal', name: 'modal-log');
     }
 
     private function pareceJson(string $texto): bool
@@ -63,12 +63,12 @@ class FederalFilamentLogsPage extends Page implements HasForms
     private function colorir(string $raw): string
     {
         $patterns = [
-            '/\bERROR\b/i' => '<span class="text-red-400 font-bold">ERROR</span>',
+            '/\bERROR\b/i'    => '<span class="text-red-400 font-bold">ERROR</span>',
             '/\bCRITICAL\b/i' => '<span class="text-red-600 font-bold">CRITICAL</span>',
-            '/\bWARNING\b/i' => '<span class="text-yellow-400 font-bold">WARNING</span>',
-            '/\bINFO\b/i' => '<span class="text-blue-400 font-bold">INFO</span>',
-            '/\bDEBUG\b/i' => '<span class="text-gray-400 font-bold">DEBUG</span>',
-            '/array \(/i' => '<span class="text-purple-300 font-bold">array (</span>',
+            '/\bWARNING\b/i'  => '<span class="text-yellow-400 font-bold">WARNING</span>',
+            '/\bINFO\b/i'     => '<span class="text-blue-400 font-bold">INFO</span>',
+            '/\bDEBUG\b/i'    => '<span class="text-gray-400 font-bold">DEBUG</span>',
+            '/array \(/i'     => '<span class="text-purple-300 font-bold">array (</span>',
         ];
 
         foreach ($patterns as $pattern => $replace) {
@@ -86,15 +86,15 @@ class FederalFilamentLogsPage extends Page implements HasForms
                 Select::make('tipo')
                     ->label('Tipo/Nível')
                     ->options([
-                        '' => 'Todos',
+                        ''          => 'Todos',
                         'emergency' => 'EMERGENCY',
-                        'alert' => 'ALERT',
-                        'critical' => 'CRITICAL',
-                        'error' => 'ERROR',
-                        'warning' => 'WARNING',
-                        'notice' => 'NOTICE',
-                        'info' => 'INFO',
-                        'debug' => 'DEBUG',
+                        'alert'     => 'ALERT',
+                        'critical'  => 'CRITICAL',
+                        'error'     => 'ERROR',
+                        'warning'   => 'WARNING',
+                        'notice'    => 'NOTICE',
+                        'info'      => 'INFO',
+                        'debug'     => 'DEBUG',
                     ]),
                 DatePicker::make('data')->label('Data')->format('Y-m-d'),
             ]),
@@ -133,9 +133,9 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
     public function getPaginatedLogsProperty()
     {
-        $page = $this->getPage();
+        $page   = $this->getPage();
         $offset = ($page - 1) * $this->perPage;
-        $items = array_slice($this->result, $offset, $this->perPage);
+        $items  = array_slice($this->result, $offset, $this->perPage);
 
         return new LengthAwarePaginator(
             $items,
@@ -154,9 +154,9 @@ class FederalFilamentLogsPage extends Page implements HasForms
         }
 
         $content = File::get($logFile);
-        $lines = explode(PHP_EOL, $content);
-        $logs = [];
-        $entry = null;
+        $lines   = explode(PHP_EOL, $content);
+        $logs    = [];
+        $entry   = null;
 
         foreach ($lines as $line) {
             if (preg_match('/^\[(.*?)\] (\w+)\.(\w+): (.*)$/', $line, $m)) {
@@ -166,9 +166,9 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
                 $entry = [
                     'datetime' => $m[1],
-                    'env' => $m[2],
-                    'level' => $m[3],
-                    'message' => $m[4],
+                    'env'      => $m[2],
+                    'level'    => $m[3],
+                    'message'  => $m[4],
                 ];
             } elseif ($entry) {
                 $entry['message'] .= "\n" . $line;
