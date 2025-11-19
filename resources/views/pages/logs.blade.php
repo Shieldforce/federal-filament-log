@@ -93,7 +93,7 @@
         icon="heroicon-o-eye"
         heading="Log completo"
     >
-        <div class="bg-black p-4 rounded-lg max-h-[80vh] overflow-y-auto text-sm">
+        <div class="p-4 rounded-lg max-h-[80vh] overflow-y-auto text-sm">
         <pre class="whitespace-pre-wrap break-words font-mono leading-5">
             {!! $this->modalContent !!}
         </pre>
