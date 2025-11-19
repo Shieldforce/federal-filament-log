@@ -45,7 +45,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $mensagem                  = base64_decode($mensagemBase64);
         $this->modalContentColored = nl2br(e($mensagem));
 
-        $this->dispatchBrowserEvent('open-modal', ['id' => 'modal-log']);
+        $this->dispatch('open-modal', ['id' => 'modal-log']);
     }
 
     protected function getFormSchema(): array
