@@ -106,7 +106,7 @@
 
     {{-- MODAL CORRIGIDO --}}
     <x-filament::modal
-        name="modal-log"
+        id="modal-log"
         width="4xl"
         icon="heroicon-o-eye"
         heading="Log completo"

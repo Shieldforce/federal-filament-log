@@ -29,7 +29,6 @@ class FederalFilamentLogsPage extends Page implements HasForms
     protected static ?string $navigationLabel = 'Logs do Sistema';
     protected static ?string $slug            = 'logs';
     protected static ?string $title           = 'Logs do Sistema';
-
     public ?string $search              = null;
     public ?string $tipo                = null;
     public ?string $data                = null;
@@ -51,7 +50,8 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
         $this->modalContent        = $raw;
         $this->modalContentColored = $this->colorir($raw);
-        $this->dispatch('open-modal', name: 'modal-log');
+
+        $this->dispatch('open-modal', id: 'modal-log');
     }
 
     private function pareceJson(string $texto): bool
