@@ -4,16 +4,16 @@ namespace Shieldforce\FederalFilamentLog\Pages;
 
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
-use Filament\Pages\Page;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Livewire\WithPagination;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Shieldforce\FederalFilamentLog\Services\Permissions\CanPageTrait;
 
 class FederalFilamentLogsPage extends Page implements HasForms
@@ -23,19 +23,31 @@ class FederalFilamentLogsPage extends Page implements HasForms
     use WithPagination;
 
     protected static string $view = 'federal-filament-log::pages.logs';
+
     protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+
     protected static ?string $navigationGroup = 'Logs';
+
     protected static ?string $label = 'Log';
+
     protected static ?string $navigationLabel = 'Logs do Sistema';
+
     protected static ?string $slug = 'logs';
+
     protected static ?string $title = 'Logs do Sistema';
 
     public ?string $search = null;
+
     public ?string $tipo = null;
+
     public ?string $data = null;
+
     public array $result = [];
+
     protected int $perPage = 20;
+
     public string $modalContent = '';
+
     public string $modalContentColored = '';
 
     public function abrirLogCompleto($mensagemBase64)
@@ -57,6 +69,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
     private function pareceJson(string $texto): bool
     {
         $trim = trim($texto);
+
         return Str::startsWith($trim, '{') || Str::startsWith($trim, '[');
     }
 
@@ -117,15 +130,15 @@ class FederalFilamentLogsPage extends Page implements HasForms
         $logs = $this->getData();
 
         if ($this->search) {
-            $logs = array_filter($logs, fn($item) => Str::contains(strtolower($item['message']), strtolower($this->search)));
+            $logs = array_filter($logs, fn ($item) => Str::contains(strtolower($item['message']), strtolower($this->search)));
         }
 
         if ($this->tipo) {
-            $logs = array_filter($logs, fn($item) => strtolower($item['level']) === strtolower($this->tipo));
+            $logs = array_filter($logs, fn ($item) => strtolower($item['level']) === strtolower($this->tipo));
         }
 
         if ($this->data) {
-            $logs = array_filter($logs, fn($item) => Str::startsWith($item['datetime'], $this->data));
+            $logs = array_filter($logs, fn ($item) => Str::startsWith($item['datetime'], $this->data));
         }
 
         $this->result = array_values($logs);
@@ -149,7 +162,7 @@ class FederalFilamentLogsPage extends Page implements HasForms
     protected function getData(): array
     {
         $logFile = storage_path('logs/laravel.log');
-        if (!File::exists($logFile)) {
+        if (! File::exists($logFile)) {
             return [];
         }
 
