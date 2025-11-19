@@ -62,6 +62,9 @@ class FederalFilamentLogsPage extends Page implements HasForms
 
     private function colorir(string $raw): string
     {
+        // Primeiro escapamos apenas os caracteres especiais
+        $raw = htmlspecialchars($raw, ENT_QUOTES, 'UTF-8');
+
         $patterns = [
             // Níveis de log
             '/\bEMERGENCY\b/i' => '<span class="text-red-600 font-bold">EMERGENCY</span>',
@@ -84,18 +87,13 @@ class FederalFilamentLogsPage extends Page implements HasForms
             "/'([^']*)'/"      => '<span class="text-green-300">\'$1\'</span>',
         ];
 
-        // Texto base verde para simular terminal
-        $raw = '<span class="text-green-400">' . e($raw) . '</span>';
-
-        // Aplicar regex de cores específicas
         foreach ($patterns as $pattern => $replace) {
             $raw = preg_replace($pattern, $replace, $raw);
         }
 
-        // Manter quebras de linha e espaços
+        // Mantém quebras de linha
         return nl2br($raw);
     }
-
 
     protected function getFormSchema(): array
     {

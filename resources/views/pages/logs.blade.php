@@ -30,7 +30,7 @@
 
     {{-- TABELA --}}
     <div class="overflow-x-auto bg-white rounded-lg shadow">
-        <table class="min-w-full divide-y divide-gray-200">
+        <table class="min-w-full divide-y divide-gray-200 w-full">
 
             <thead class="bg-gray-50">
             <tr>
@@ -49,9 +49,9 @@
                     <td class="px-4 py-2 text-sm font-semibold">{{ strtoupper($log['level']) }}</td>
                     <td class="px-4 py-2 text-sm text-gray-700 break-words">
                         <div class="flex flex-col">
-                                <span class="whitespace-pre-wrap break-words">
-                                    {!! nl2br(e(Str::limit($log['message'], 260))) !!}
-                                </span>
+                            <span class="whitespace-pre-wrap break-words">
+                                {!! nl2br(e(Str::limit($log['message'], 260))) !!}
+                            </span>
 
                             @if(strlen($log['message']) > 260)
                                 <button
@@ -94,9 +94,9 @@
         heading="Log completo"
     >
         <div class="bg-black text-gray-200 p-4 rounded-lg max-h-[80vh] overflow-y-auto text-sm">
-            <pre class="whitespace-pre-wrap break-words font-mono text-sm leading-5">
-                {!! $this->modalContentColored !!}
-            </pre>
+        <pre class="whitespace-pre-wrap break-words font-mono text-sm leading-5">
+            {!! $this->modalContentColored !!}
+        </pre>
         </div>
     </x-filament::modal>
 
